@@ -203,30 +203,47 @@ export default function RacksLayout() {
       // Zona B (X: 20-40). Centro = 30. 6 cuerpos = 17.4m.
       const centersB = [37.25, 34.35, 31.45, 28.55, 25.65, 22.75];
       
-      // Zona C (X: 0-20). Centro = 10. 6 cuerpos = 17.4m.
-      const centersC = [18.7, 15.8, 12.9, 10.0, 7.1, 4.2];
+      // Zona C (X: 6-20). DS43 ocupa de 0 a 6m. Así que C empieza en > 6m.
+      // Omitimos cuerpos que caen dentro de X=0 a 6. (ej. 4.2 chocaba). 7.1 tocaba 5.65.
+      // Usaremos centros que respeten el límite de >6m.
+      const centersC = [18.7, 15.8, 12.9, 10.0, 7.5];
 
-      const allCentersX = [...centersA, ...centersB, ...centersC]; // 15 cuerpos totales
+      const allCentersX = [...centersA, ...centersB, ...centersC]; 
 
     LINE_Z_CENTERS.forEach((cz, lineIndex) => {
       // --- CALCULAR PILARES (POSTS) ---
-      // Distribuir pórticos en los extremos de cada cuerpo individual en lugar de compartir contigüamente a través de todas las zonas
+      allCentersX.forEach((cx) => {
+        const postXLeft = cx - (RACK_WIDTH / 2);
+        const postXRight = cx + (RACK_WIDTH / 2);
+        const postY = BODEGA_ELEVATION + RACK_HEIGHT / 2;
+        
+        // Cada pórtico tiene 3 pilares de fondo (Frontal, Medio, Trasero) en las baterías
+        [postXLeft, postXRight].forEach(postX => {
+          data.posts.push(
+            [postX, postY, cz - halfDepth],
+            [postX, postY, cz],
+            [postX, postY, cz + halfDepth]
+          );
+        });
+      });
+
       // --- CALCULAR VIGAS (BEAMS) Y PALLETS ---
       allCentersX.forEach((cx, i) => {
         const isZoneA = i < 3;
         const isZoneB = i >= 3 && i < 9;
         const isZoneC = i >= 9;
 
-        // La Zona C Horizontal ya NO existe
-        if (isZoneC) return;
-
         let targetBeamArray;
         if (isZoneA) targetBeamArray = data.beamsA;
         else if (isZoneB) targetBeamArray = data.beamsB;
-        else return;
+        else targetBeamArray = data.beamsC;
         
-        // Por cada nivel añadir 4 vigas y 4 pallets (2 al frente paralelos, 2 atrás paralelos)
-        LEVELS.forEach((levelY) => {
+        // Nivel C solo usa 5 niveles en total (Piso + 4 vigas suspendidas)
+        // Por ende usamos los primeros 4 montajes de viga (2, 4, 6, 8m).
+        const targetLevels = isZoneC ? [2.0, 4.0, 6.0, 8.0] : LEVELS;
+
+        // Por cada nivel añadir 4 vigas y 4 pallets
+        targetLevels.forEach((levelY) => {
           const by = BODEGA_ELEVATION + levelY;
           // Z posiciones para las vigas: frontal, medio1, medio2, trasero
           const front1 = cz - halfDepth + 0.1;
@@ -252,82 +269,44 @@ export default function RacksLayout() {
           let targetPalletArray;
           if (isZoneA) targetPalletArray = data.palletsA;
           else if (isZoneB) targetPalletArray = data.palletsB;
+          else targetPalletArray = data.palletsC;
 
           targetPalletArray.push([pxLeft, palletY, palletZFront]);
           targetPalletArray.push([pxRight, palletY, palletZFront]);
           targetPalletArray.push([pxLeft, palletY, palletZRear]);
           targetPalletArray.push([pxRight, palletY, palletZRear]);
         });
-
       });
     });
 
-    // ======= GENERACIÓN ESPECIAL: RACK VERTICAL DS43 (ZONA C) =======
-    // Vertical -> Posicionado a lo largo de Z, pegado a la pared X=0
-    const DS43_Z_CENTERS = [11.95, 14.85, 17.75, 20.65, 23.55, 26.45, 29.35, 32.25, 35.15, 38.05];
-    const cxC = 1.35; // Pegado al fondo X=0 (Centro del cuerpo Depth 2.4m + offset al muro)
+    // ======= GENERACIÓN ESPECIAL: JAULA DS43 (CAGE) =======
+    // "La ds43 debe medir 6 metros de ancho de la izquierda a la derecha... en una jaula sin tapa"
+    // "Los tambores no deben estar en rack pero si sobre pallets"
+    // Zona de la jaula: X=0 a X=6, Z=10 a Z=40.
+    
+    // Mismo material que usábamos para SafetyMesh pero formará una caja hueca sin tapa.
+    // Renderizamos las paredes en Scene con componentes fijos. Instanciamos solo los pallets y tambores aquí.
+    
+    // Grid de pallets en el piso dentro de la jaula DS43
+    // Pallets tienen ~1.2m profundidad de Z. 1.0m ancho de X.
+    // Llenaremos el suelo dejando un pequeño pasillo
+    const ds43Z = [];
+    for(let z = 11; z <= 39; z += 1.5) ds43Z.push(z);
+    
+    const ds43X = [0.8, 2.3, 3.8, 5.3]; // 4 columnas de pallets
 
-    DS43_Z_CENTERS.forEach((czC) => {
-       // --- PILARES VERTICALES ---
-       // El ancho del body ahora corre a lo largo del eje Z
-       const postZLeft = czC - (RACK_WIDTH / 2);
-       const postZRight = czC + (RACK_WIDTH / 2);
-       const postY = BODEGA_ELEVATION + RACK_HEIGHT / 2;
-       
-       // Generar los 3 Pilares en Eje X porque el marco corre profundo en X
-       [postZLeft, postZRight].forEach(postZ => {
-          data.posts.push(
-             [cxC - halfDepth, postY, postZ],
-             [cxC, postY, postZ],
-             [cxC + halfDepth, postY, postZ]
-          );
-       });
+    ds43Z.forEach(cz => {
+      ds43X.forEach(cx => {
+        const palletY = BODEGA_ELEVATION + PALLET_H / 2;
+        data.palletsC.push([cx, palletY, cz]);
 
-       // --- VIGAS Y PALLETS VERTICALES ---
-       // Malla de seguridad centrada cortando Z
-       data.safetyMeshes.push([cxC, BODEGA_ELEVATION + RACK_HEIGHT / 2, czC]);
-       
-       LEVELS.forEach(levelY => {
-         const by = BODEGA_ELEVATION + levelY;
-         // Posiciones de vigas ahora varían en el Eje X (Profundidad)
-         const front1 = cxC - halfDepth + 0.1;
-         const front2 = cxC - 0.2;
-         const rear1 = cxC + 0.2;
-         const rear2 = cxC + halfDepth - 0.1;
-
-         data.beamsC.push(
-           [front1, by, czC],
-           [front2, by, czC],
-           [rear1, by, czC],
-           [rear2, by, czC]
-         );
-
-         const palletY = by + (BEAM_H / 2) + (PALLET_H / 2);
-         const palletXFront = (front1 + front2) / 2;
-         const palletXRear = (rear1 + rear2) / 2;
-         
-         const pzLeft = czC - 0.7;
-         const pzRight = czC + 0.7;
-
-         data.palletsC.push([palletXFront, palletY, pzLeft]);
-         data.palletsC.push([palletXFront, palletY, pzRight]);
-         data.palletsC.push([palletXRear, palletY, pzLeft]);
-         data.palletsC.push([palletXRear, palletY, pzRight]);
-
-         const drumY = palletY + (PALLET_H / 2) + 0.45;
-
-         // Pallets frontales (tambores de fondo según Z)
-         data.drums.push([palletXFront, drumY, czC - 0.9]);
-         data.drums.push([palletXFront, drumY, czC - 0.5]);
-         data.drums.push([palletXFront, drumY, czC + 0.5]);
-         data.drums.push([palletXFront, drumY, czC + 0.9]);
-
-         // Pallets traseros (tambores de fondo según Z)
-         data.drums.push([palletXRear, drumY, czC - 0.9]);
-         data.drums.push([palletXRear, drumY, czC - 0.5]);
-         data.drums.push([palletXRear, drumY, czC + 0.5]);
-         data.drums.push([palletXRear, drumY, czC + 0.9]);
-       });
+        const drumY = palletY + (PALLET_H / 2) + 0.45;
+        // 4 tambores por pallet cerrado
+        data.drums.push([cx - 0.25, drumY, cz - 0.25]);
+        data.drums.push([cx - 0.25, drumY, cz + 0.25]);
+        data.drums.push([cx + 0.25, drumY, cz - 0.25]);
+        data.drums.push([cx + 0.25, drumY, cz + 0.25]);
+      });
     });
 
     return data;
@@ -339,15 +318,27 @@ export default function RacksLayout() {
       <InstancedPosts positions={layoutData.posts} />
       <InstancedBeams color={COLOR_ZONE_A} positions={layoutData.beamsA} tilt={-0.03} /> {/* Flow-thru tilt */}
       <InstancedBeams color={COLOR_ZONE_B} positions={layoutData.beamsB} />
+      <InstancedBeams color={COLOR_ZONE_C} positions={layoutData.beamsC} />
 
-      {/* RACK VERTICAL ZONA C */}
-      <InstancedBeams color={COLOR_ZONE_C} positions={layoutData.beamsC} rotY={Math.PI / 2} />
-      <InstancedSafetyMesh positions={layoutData.safetyMeshes} rotY={Math.PI / 2} />
+      {/* JAULA DS43 (CAGE BOUNDARIES) */}
+      {/* Muro posterior (Z=10), Muro frontal (Z=40), Muro lateral (X=6) */}
+      <mesh position={[3, BODEGA_ELEVATION + 5, 10]}>
+        <planeGeometry args={[6, 10]} />
+        <meshBasicMaterial color="#FBBF24" wireframe transparent opacity={0.3} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[3, BODEGA_ELEVATION + 5, 40]}>
+        <planeGeometry args={[6, 10]} />
+        <meshBasicMaterial color="#FBBF24" wireframe transparent opacity={0.3} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[6, BODEGA_ELEVATION + 5, 25]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[30, 10]} />
+        <meshBasicMaterial color="#FBBF24" wireframe transparent opacity={0.3} side={THREE.DoubleSide} />
+      </mesh>
 
       {/* 2. Objetos de Almacenamiento */}
       <InstancedRackPallets positions={layoutData.palletsA} tilt={-0.03} />
       <InstancedRackPallets positions={layoutData.palletsB} />
-      <InstancedRackPallets positions={layoutData.palletsC} rotY={Math.PI / 2} />
+      <InstancedRackPallets positions={layoutData.palletsC} />
 
       {/* 3. Objetos de Emergencia (Tambores DS43) */}
       <InstancedDrums positions={layoutData.drums} />
@@ -374,14 +365,24 @@ export default function RacksLayout() {
         ZONA B (SELECTIVE)
       </Text>
       <Text
-        position={[10, BODEGA_ELEVATION + RACK_HEIGHT + 1, LINE_Z_CENTERS[6]]}
+        position={[15, BODEGA_ELEVATION + RACK_HEIGHT + 1, LINE_Z_CENTERS[6]]}
         rotation={[-Math.PI/2, 0, 0]}
         fontSize={1}
         color={COLOR_ZONE_C}
         anchorX="center"
         anchorY="bottom"
       >
-        ZONA C (DS43)
+        ZONA C (SELECTIVE)
+      </Text>
+      <Text
+        position={[3, BODEGA_ELEVATION + 5 + 1.5, 25]} // Encima de la jaula
+        rotation={[-Math.PI/2, 0, 0]}
+        fontSize={1}
+        color="#F59E0B" // Amarillo advertencia
+        anchorX="center"
+        anchorY="bottom"
+      >
+        DS43 (INFLAMABLES)
       </Text>
     </group>
   );
