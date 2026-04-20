@@ -15,6 +15,7 @@ import {
   PATIO_CENTER_X,
   PATIO_CENTER_Z,
   CONTAINMENT_CHANNEL_X,
+  CALLE_ADELA_WIDTH,
   COLORS,
 } from '@/lib/constants';
 
@@ -112,6 +113,39 @@ export default function Terrain() {
         <planeGeometry args={[PATIO_WIDTH, TERRAIN_DEPTH]} />
         <meshStandardMaterial color={COLORS.patioSurface} roughness={0.85} />
       </mesh>
+
+      {/* ── Calle Adela surface (X=100..115) ── */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[GATE_X + CALLE_ADELA_WIDTH / 2, 0.006, TERRAIN_DEPTH / 2]}
+        receiveShadow
+      >
+        <planeGeometry args={[CALLE_ADELA_WIDTH, TERRAIN_DEPTH]} />
+        <meshStandardMaterial color={COLORS.asphaltCalle} roughness={0.7} />
+      </mesh>
+
+      {/* Labels for Identification */}
+      <Text
+        position={[GATE_X + CALLE_ADELA_WIDTH / 2, 0.2, 25]}
+        rotation={[-Math.PI / 2, 0, Math.PI / 2]}
+        fontSize={2}
+        color="#ffffff"
+        opacity={0.5}
+        transparent
+      >
+        CALLE ADELA
+      </Text>
+
+      <Text
+        position={[80, 0.2, 45]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        fontSize={1.5}
+        color="#ffffff"
+        opacity={0.3}
+        transparent
+      >
+        PATIO DE MANIOBRAS
+      </Text>
 
       {/* ── Grid ── */}
       <gridHelper

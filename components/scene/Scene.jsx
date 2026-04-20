@@ -6,6 +6,11 @@ import * as THREE from 'three';
 
 import CameraController from './CameraController';
 import Warehouse from './Warehouse';
+import Terrain from './Terrain';
+import Docks from './Docks';
+import Weighbridge from './Weighbridge';
+import RespelZone from './RespelZone';
+import Gates from './Gates';
 import { COLORS } from '@/lib/constants';
 
 // ══════════════════════════════════════════════════════════════════
@@ -52,7 +57,17 @@ export default function Scene() {
       <CameraController />
 
       <Suspense fallback={null}>
+        {/* Environmental Foundation */}
+        <Terrain />
+
+        {/* Indoor Logic (Warehouse X: 0-60) */}
         <Warehouse />
+
+        {/* Outdoor Logic (Patio X: 60-100) */}
+        <Docks />
+        <Weighbridge />
+        <RespelZone />
+        <Gates />
       </Suspense>
     </Canvas>
   );
