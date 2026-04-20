@@ -92,26 +92,39 @@ function InstancedBeams({ color, positions, tilt = 0, rotY = 0 }) {
 
 function InstancedDrums({ positions }) {
   const meshRef = useRef();
+  const cageRef = useRef();
+  
   // Tambor estandar (200L): Diámetro ~0.6m, Alto ~0.9m
   const geom = useMemo(() => new THREE.CylinderGeometry(0.3, 0.3, 0.9, 16), []);
+  // Jaula IBC Tote alrededor del tambor
+  const cageGeom = useMemo(() => new THREE.BoxGeometry(0.7, 1.0, 0.7, 2, 2, 2), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useLayoutEffect(() => {
-    if (!meshRef.current || positions.length === 0) return;
+    if (!meshRef.current || !cageRef.current || positions.length === 0) return;
     positions.forEach((pos, i) => {
       dummy.position.set(...pos);
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
+      
+      // La jaula va exactamente en la misma posición (centrada con el tambor)
+      cageRef.current.setMatrixAt(i, dummy.matrix);
     });
     meshRef.current.instanceMatrix.needsUpdate = true;
-  }, [positions, dummy]);
+    cageRef.current.instanceMatrix.needsUpdate = true;
+  }, [positions, dummy, geom, cageGeom]);
 
   if (positions.length === 0) return null;
 
   return (
-    <instancedMesh ref={meshRef} args={[geom, null, positions.length]}>
-      <meshStandardMaterial color="#047857" roughness={0.3} metalness={0.6} />
-    </instancedMesh>
+    <group>
+      <instancedMesh ref={meshRef} args={[geom, null, positions.length]}>
+        <meshStandardMaterial color="#047857" roughness={0.3} metalness={0.6} />
+      </instancedMesh>
+      <instancedMesh ref={cageRef} args={[cageGeom, null, positions.length]}>
+        <meshBasicMaterial color="#9CA3AF" wireframe transparent opacity={0.6} />
+      </instancedMesh>
+    </group>
   );
 }
 
@@ -320,31 +333,7 @@ export default function RacksLayout() {
       <InstancedBeams color={COLOR_ZONE_B} positions={layoutData.beamsB} />
       <InstancedBeams color={COLOR_ZONE_C} positions={layoutData.beamsC} />
 
-      {/* JAULA DS43 (CAGE BOUNDARIES & SPILL BASIN) */}
-      
-      {/* 1. Dique Antiderrame Inferior (Spill Containment Basin) */}
-      {/* Centrado en X=3 (ancho 6), Z=25 (largo 30, Z=10 a 40), base en el piso */}
-      <mesh position={[3, BODEGA_ELEVATION + 0.1, 25]}>
-        <boxGeometry args={[6, 0.2, 30]} />
-        <meshStandardMaterial color="#FCD34D" transparent opacity={0.4} /> {/* Amarillo semi-transparente */}
-      </mesh>
 
-      {/* 2. Muros Perimetrales (Jaula de Malla de Acero - Wireframe Densa) */}
-      {/* Muro posterior (Z=10) */}
-      <mesh position={[3, BODEGA_ELEVATION + 5, 10]}>
-        <planeGeometry args={[6, 10, 12, 20]} /> {/* 12x20 subdivisiones para malla densa */}
-        <meshBasicMaterial color="#F59E0B" wireframe transparent opacity={0.5} side={THREE.DoubleSide} />
-      </mesh>
-      {/* Muro frontal (Z=40) */}
-      <mesh position={[3, BODEGA_ELEVATION + 5, 40]}>
-        <planeGeometry args={[6, 10, 12, 20]} />
-        <meshBasicMaterial color="#F59E0B" wireframe transparent opacity={0.5} side={THREE.DoubleSide} />
-      </mesh>
-      {/* Muro lateral interno que separa de Zona C (X=6) */}
-      <mesh position={[6, BODEGA_ELEVATION + 5, 25]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[30, 10, 60, 20]} /> {/* 60x20 subdivisiones para lado largo */}
-        <meshBasicMaterial color="#F59E0B" wireframe transparent opacity={0.5} side={THREE.DoubleSide} />
-      </mesh>
 
       {/* 2. Objetos de Almacenamiento */}
       <InstancedRackPallets positions={layoutData.palletsA} tilt={-0.03} />
