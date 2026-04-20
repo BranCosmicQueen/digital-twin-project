@@ -96,23 +96,30 @@ function InstancedDrums({ positions }) {
   
   // Tambor estandar (200L): Diámetro ~0.6m, Alto ~0.9m
   const geom = useMemo(() => new THREE.CylinderGeometry(0.3, 0.3, 0.9, 16), []);
-  // Jaula IBC Tote alrededor del tambor
-  const cageGeom = useMemo(() => new THREE.BoxGeometry(0.7, 1.0, 0.7, 2, 2, 2), []);
+  
+  // Jaula "Abierta" (sin tapa): Usamos un cilindro de 4 caras abierto en los extremos (openEnded)
+  // Al rotarlo 45 grados en el loop, se convierte en un marco cuadrado sin tapa ni base.
+  const cageGeom = useMemo(() => new THREE.CylinderGeometry(0.5, 0.5, 1.0, 4, 1, true), []);
+  
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useLayoutEffect(() => {
     if (!meshRef.current || !cageRef.current || positions.length === 0) return;
     positions.forEach((pos, i) => {
+      // Drum
       dummy.position.set(...pos);
+      dummy.rotation.y = 0;
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
       
-      // La jaula va exactamente en la misma posición (centrada con el tambor)
+      // Cage (Rotada 45deg para ser cuadrada)
+      dummy.rotation.y = Math.PI / 4;
+      dummy.updateMatrix();
       cageRef.current.setMatrixAt(i, dummy.matrix);
     });
     meshRef.current.instanceMatrix.needsUpdate = true;
     cageRef.current.instanceMatrix.needsUpdate = true;
-  }, [positions, dummy, geom, cageGeom]);
+  }, [positions]);
 
   if (positions.length === 0) return null;
 
@@ -122,7 +129,7 @@ function InstancedDrums({ positions }) {
         <meshStandardMaterial color="#047857" roughness={0.3} metalness={0.6} />
       </instancedMesh>
       <instancedMesh ref={cageRef} args={[cageGeom, null, positions.length]}>
-        <meshBasicMaterial color="#9CA3AF" wireframe transparent opacity={0.6} />
+        <meshBasicMaterial color="#9CA3AF" wireframe transparent opacity={0.6} side={THREE.DoubleSide} />
       </instancedMesh>
     </group>
   );
