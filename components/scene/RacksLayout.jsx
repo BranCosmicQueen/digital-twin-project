@@ -301,24 +301,31 @@ export default function RacksLayout() {
     // Mismo material que usábamos para SafetyMesh pero formará una caja hueca sin tapa.
     // Renderizamos las paredes en Scene con componentes fijos. Instanciamos solo los pallets y tambores aquí.
     
-    // Grid de pallets en el piso dentro de la jaula DS43
-    // Llenaremos el suelo solo con DOS hileras de pallets
+    // Grid de pallets en el piso dentro de la jaula DS43 (ALTA DENSIDAD)
     const ds43Z = [];
-    for(let z = 11; z <= 39; z += 1.5) ds43Z.push(z);
+    for(let z = 10.75; z <= 39.25; z += 1.35) ds43Z.push(z); // Espaciado más cerrado (1.35m vs 1.5m)
     
-    const ds43X = [2.0, 4.0]; // Exactamente 2 columnas (hileras de izquierda a derecha)
+    // 5 columnas pegadas a la pared (X=0)
+    const ds43X = [0.6, 1.7, 2.8, 3.9, 5.0]; 
+
+    // Niveles de apilado (2 niveles para mayor eficiencia)
+    const ds43Levels = [
+      BODEGA_ELEVATION + PALLET_H / 2, // Nivel 1 (Suelo)
+      BODEGA_ELEVATION + PALLET_H + 0.9 + PALLET_H / 2 // Nivel 2 (Sobre tambores de 0.9m)
+    ];
 
     ds43Z.forEach(cz => {
       ds43X.forEach(cx => {
-        const palletY = BODEGA_ELEVATION + PALLET_H / 2;
-        data.palletsC.push([cx, palletY, cz]);
+        ds43Levels.forEach(palletY => {
+          data.palletsC.push([cx, palletY, cz]);
 
-        const drumY = palletY + (PALLET_H / 2) + 0.45;
-        // 4 tambores por pallet cerrado
-        data.drums.push([cx - 0.25, drumY, cz - 0.25]);
-        data.drums.push([cx - 0.25, drumY, cz + 0.25]);
-        data.drums.push([cx + 0.25, drumY, cz - 0.25]);
-        data.drums.push([cx + 0.25, drumY, cz + 0.25]);
+          const drumY = palletY + (PALLET_H / 2) + 0.45;
+          // 4 tambores por pallet
+          data.drums.push([cx - 0.25, drumY, cz - 0.25]);
+          data.drums.push([cx - 0.25, drumY, cz + 0.25]);
+          data.drums.push([cx + 0.25, drumY, cz - 0.25]);
+          data.drums.push([cx + 0.25, drumY, cz + 0.25]);
+        });
       });
     });
 
