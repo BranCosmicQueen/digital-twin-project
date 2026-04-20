@@ -45,7 +45,7 @@ function ReferenceGrid() {
     const major = [];
 
     // Lines along X axis (vertical in plan view)
-    for (let x = 0; x <= BODEGA_WIDTH; x += 1) {
+    for (let x = 0; x <= GATE_X; x += 1) {
       const isMajor = x % 10 === 0;
       (isMajor ? major : minor).push({
         points: [
@@ -61,7 +61,7 @@ function ReferenceGrid() {
       (isMajor ? major : minor).push({
         points: [
           [0, BODEGA_ELEVATION + 0.001, z],
-          [BODEGA_WIDTH, BODEGA_ELEVATION + 0.001, z],
+          [GATE_X, BODEGA_ELEVATION + 0.001, z],
         ],
       });
     }
@@ -100,7 +100,7 @@ function ReferenceGrid() {
 function RulerLabels() {
   const labels = useMemo(() => {
     const items = [];
-    for (let x = 0; x <= BODEGA_WIDTH; x += 10) {
+    for (let x = 0; x <= GATE_X; x += 10) {
       items.push({ text: `${x}m`, position: [x, ZONE_Y + 0.02, -1.5], color: COLORS.gridMajor });
     }
     for (let z = 0; z <= BODEGA_DEPTH; z += 10) {
@@ -175,7 +175,9 @@ function GeneralTexts() {
     { text: 'ROMANA', position: [ROMANA_X, 0.2, ROMANA_Z + ROMANA_DEPTH / 2 + 1.5], fontSize: 0.6, color: COLORS.weighbridge, fillOpacity: 0.7 },
     { text: 'MUELLE CARGA', position: [DOCK_WALL_X + 5, 0.05, DOCK_CARGA_Z], fontSize: 0.8, color: COLORS.accentOutbound, opacity: 1 },
     { text: 'MUELLE DESCARGA', position: [DOCK_WALL_X + 5, 0.05, DOCK_DESCARGA_Z], fontSize: 0.8, color: COLORS.accentInbound, opacity: 1 },
-    { text: '← 60m →', position: [30, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
+    { text: '← 60m (BODEGA) →', position: [30, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
+    { text: '← 40m (PATIO) →', position: [80, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
+    { text: '← 100m (BASE TOTAL) →', position: [50, ZONE_Y + 0.02, -6], fontSize: 1.5, color: '#1f2937', opacity: 0.9 },
     { text: '← 50m →', position: [-3.5, ZONE_Y + 0.02, 25], fontSize: 1.2, color: '#374151', opacity: 0.8, rotationZ: Math.PI / 2 },
   ];
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { Icon } from '@iconify/react';
 import useSimStore from '@/store/useSimStore';
 import { useSimulationStore } from '@/lib/store';
 
@@ -35,19 +36,10 @@ export default function FloatingControls() {
         style={buttonStyle}
         title={uiVisible ? 'Ocultar Interfaz' : 'Mostrar Interfaz'}
       >
-        <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          {uiVisible ? (
-            /* Eye icon */
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-          ) : (
-            /* Eye barred icon */
-            <>
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-              <line x1="1" y1="1" x2="23" y2="23" />
-            </>
-          )}
-          {uiVisible && <circle cx="12" cy="12" r="3" />}
-        </svg>
+        <Icon 
+          icon={uiVisible ? "mdi:eye-outline" : "mdi:eye-off-outline"} 
+          width="24" 
+        />
       </button>
 
       {/* 2. Simulation Actions Stack (Conditional) */}
@@ -63,13 +55,9 @@ export default function FloatingControls() {
             ...buttonStyle,
             borderColor: status === 'inbound' ? 'var(--accent-cyan)' : buttonStyle.border,
           }}
-          title="Simular Entrada de Camión"
+          title="Simular Entrada de Camión (Recepción)"
         >
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-            <polyline points="10 17 15 12 10 7" />
-            <line x1="15" y1="12" x2="3" y2="12" />
-          </svg>
+          <Icon icon="mdi:truck-check-outline" width="24" />
         </button>
 
         {/* Simular Salida */}
@@ -81,13 +69,9 @@ export default function FloatingControls() {
             ...buttonStyle,
             borderColor: status === 'outbound' ? 'var(--accent-orange)' : buttonStyle.border,
           }}
-          title="Simular Salida de Camión"
+          title="Simular Salida de Camión (Despacho)"
         >
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+          <Icon icon="mdi:truck-fast-outline" width="24" />
         </button>
 
         {/* Reset Site */}
@@ -97,10 +81,7 @@ export default function FloatingControls() {
           style={buttonStyle}
           title="Reiniciar Simulación"
         >
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <polyline points="1 4 1 10 7 10" />
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-          </svg>
+          <Icon icon="mdi:refresh" width="24" />
         </button>
 
         {/* Divider */}
@@ -118,21 +99,12 @@ export default function FloatingControls() {
           }}
           title={viewMode === '2d' ? 'Cambiar a Vista 3D' : 'Cambiar a Vista Cenital 2D'}
         >
-          {viewMode === '2d' ? (
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
-            </svg>
-          ) : (
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="12" y1="3" x2="12" y2="21" />
-            </svg>
-          )}
+          <Icon 
+            icon={viewMode === '2d' ? "mdi:view-in-gallery" : "mdi:view-parallel"} 
+            width="24" 
+          />
         </button>
       </div>
     </div>
-  );
+    );
 }
