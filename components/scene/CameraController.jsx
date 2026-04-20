@@ -1,11 +1,12 @@
 'use client';
 
 import { useRef, useEffect, useCallback } from 'react';
-import { useThree } from '@react-three/fiber';
+import { useThree, useFrame } from '@react-three/fiber';
 import {
   MapControls,
   OrthographicCamera,
   PerspectiveCamera,
+  useKeyboardControls,
 } from '@react-three/drei';
 import * as THREE from 'three';
 import useSimStore from '@/store/useSimStore';
@@ -74,6 +75,38 @@ export default function CameraController() {
     }
   }, [viewMode, set, setupOrtho]);
 
+  // ── WASD Movement Logic (Phase 1 Requirement) ──
+  const [, getKeys] = useKeyboardControls();
+  const MOVEMENT_SPEED = 15; // meters per second
+
+  useFrame((state, delta) => {
+    if (viewMode !== '3d') return;
+    
+    const { forward, backward, left, right } = getKeys();
+    const camera = state.camera;
+    const controls = controlsRef.current;
+
+    if (!camera || !controls) return;
+
+    // Direct translation
+    const moveZ = (forward ? 1 : 0) - (backward ? 1 : 0);
+    const moveX = (right ? 1 : 0) - (left ? 1 : 0);
+
+    if (moveZ !== 0 || moveX !== 0) {
+      // Create movement vector relative to camera rotation (flattened to Y=0)
+      const moveVector = new THREE.Vector3(moveX, 0, -moveZ);
+      moveVector.applyQuaternion(camera.quaternion);
+      moveVector.y = 0; // Keep movement on the ground
+      moveVector.normalize().multiplyScalar(MOVEMENT_SPEED * delta);
+
+      camera.position.add(moveVector);
+      
+      // Crucial: Update control target to follow camera position shift
+      controls.target.add(moveVector);
+      controls.update();
+    }
+  });
+
   return (
     <>
       {/* Perspective Camera (3D inspection) */}
@@ -81,9 +114,9 @@ export default function CameraController() {
         ref={perspCamRef}
         makeDefault={viewMode === '3d'}
         position={CAMERA_PRESETS.perspective.position}
-        fov={50}
+        fov={45}
         near={0.1}
-        far={500}
+        far={1000}
       />
 
       {/* Orthographic Camera (2D cenital — default for validation) */}
@@ -100,15 +133,15 @@ export default function CameraController() {
       <MapControls
         ref={controlsRef}
         enableDamping
-        dampingFactor={0.1}
+        dampingFactor={0.15}
         enableRotate={viewMode === '3d'}
         enablePan={true}
         panSpeed={1.5}
         zoomSpeed={1.2}
         minZoom={3}
         maxZoom={60}
-        minDistance={5}
-        maxDistance={300}
+        minDistance={2}
+        maxDistance={400}
         screenSpacePanning={true}
         target={[CENTER_X, 0, CENTER_Z]}
       />

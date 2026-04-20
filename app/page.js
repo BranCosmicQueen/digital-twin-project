@@ -1,9 +1,17 @@
 'use client';
 
+import { KeyboardControls } from '@react-three/drei';
 import dynamic from 'next/dynamic';
 import useSimStore from '@/store/useSimStore';
 
 const Scene = dynamic(() => import('@/components/scene/Scene'), { ssr: false });
+
+const keyboardMap = [
+  { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
+  { name: 'backward', keys: ['ArrowDown', 'KeyS'] },
+  { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
+  { name: 'right', keys: ['ArrowRight', 'KeyD'] },
+];
 
 export default function Home() {
   const viewMode = useSimStore((s) => s.viewMode);
@@ -11,8 +19,10 @@ export default function Home() {
 
   return (
     <main className="relative w-screen h-screen overflow-hidden" style={{ background: '#F3F4F6' }}>
-      {/* 3D Canvas */}
-      <Scene />
+      {/* 3D Canvas with Keyboard Support */}
+      <KeyboardControls map={keyboardMap}>
+        <Scene />
+      </KeyboardControls>
 
       {/* Minimal overlay: View Toggle + Title */}
       <div
