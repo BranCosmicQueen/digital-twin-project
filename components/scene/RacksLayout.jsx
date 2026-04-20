@@ -209,7 +209,13 @@ export default function RacksLayout() {
     LINE_Z_CENTERS.forEach((cz, lineIndex) => {
       // --- CALCULAR PILARES (POSTS) ---
       // Distribuir pórticos en los extremos de cada cuerpo individual en lugar de compartir contigüamente a través de todas las zonas
-      allCentersX.forEach((cx) => {
+      allCentersX.forEach((cx, i) => {
+        const isZoneC = i >= 9;
+        const isDrumRack = isZoneC && lineIndex === 0;
+
+        // Skip si estamos en zona C pero no es el drum rack
+        if (isZoneC && !isDrumRack) return;
+
         const postXLeft = cx - (RACK_WIDTH / 2);
         const postXRight = cx + (RACK_WIDTH / 2);
         const postY = BODEGA_ELEVATION + RACK_HEIGHT / 2;
@@ -232,14 +238,20 @@ export default function RacksLayout() {
 
         // "No deben haber 7 racks destinados a tambores, solo 1 y pegado a la pared"
         // Escogemos la línea del extremo (lineIndex === 0) como el rack exclusivo de tambores en la Zona C.
+        // ADEMÁS: En la Zona C, *solo* existe este rack. No hay más racks en la Zona C.
         const isDrumRack = isZoneC && lineIndex === 0;
+
+        // Si estamos en la Zona C, pero no es la línea del DrumRack (lineIndex 0), abortamos y no renderizamos NINGÚN rack.
+        if (isZoneC && !isDrumRack) {
+          return; // Dejamos el espacio vacío ("almacenamiento a piso")
+        }
 
         let targetBeamArray;
         if (isZoneA) targetBeamArray = data.beamsA;
         else if (isZoneB) targetBeamArray = data.beamsB;
         else targetBeamArray = data.beamsC;
         
-        // Agregar malla de seguridad (Safety Mesh) partiéndolo por el medio transversalmente para dividir la batería doble
+        // Agregar malla de seguridad (Safety Mesh) a espaldas del rack de tambores
         if (isDrumRack) {
            data.safetyMeshes.push([cx, BODEGA_ELEVATION + RACK_HEIGHT / 2, cz]);
         }
