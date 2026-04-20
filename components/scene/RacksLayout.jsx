@@ -10,13 +10,13 @@ const LINE_Z_CENTERS = [13.6, 18.8, 21.2, 26.4, 28.8, 34.0, 36.4];
 
 const NUM_BODIES = 15;
 const START_X = 48.5;
-const RACK_HEIGHT = 11.5;
+const RACK_HEIGHT = 10.15; // Rebajado a tope del piso 5
 
 // Dimensiones Estructurales
 const POST_W = 0.12; 
 const BEAM_H = 0.15; 
 const BEAM_D = 0.08; 
-const LEVELS = [2.0, 4.0, 6.0, 8.0, 10.0, 11.5]; // 6 Niveles
+const LEVELS = [2.0, 4.0, 6.0, 8.0, 10.0]; // 5 Niveles (1 nivel quitado)
 
 // Colors
 const COLOR_ZONE_A = '#0284C7'; // Cyan oscuro
@@ -274,6 +274,33 @@ export default function RacksLayout() {
           targetPalletArray.push([pxLeft, palletY, palletZRear]);
           targetPalletArray.push([pxRight, palletY, palletZRear]);
         });
+
+        // ====== GENERACIÓN DE PALLETS EN EL PISO (NIVEL 1 CERO) ======
+        // Sin vigas metálicas, directo en la losa base.
+        const floorPalletY = BODEGA_ELEVATION + (PALLET_H / 2);
+        
+        // Z posiciones para los pallets son las mismas que entre vigas calculadas
+        const front1 = cz - halfDepth + 0.1;
+        const front2 = cz - 0.2;
+        const rear1 = cz + 0.2;
+        const rear2 = cz + halfDepth - 0.1;
+
+        const floorPZFront = (front1 + front2) / 2;
+        const floorPZRear = (rear1 + rear2) / 2;
+        
+        const pxLeft = cx - 0.7; 
+        const pxRight = cx + 0.7;
+
+        let floorTargetPalletArray;
+        if (isZoneA) floorTargetPalletArray = data.palletsA;
+        else if (isZoneB) floorTargetPalletArray = data.palletsB;
+        else floorTargetPalletArray = data.palletsC;
+
+        floorTargetPalletArray.push([pxLeft, floorPalletY, floorPZFront]);
+        floorTargetPalletArray.push([pxRight, floorPalletY, floorPZFront]);
+        floorTargetPalletArray.push([pxLeft, floorPalletY, floorPZRear]);
+        floorTargetPalletArray.push([pxRight, floorPalletY, floorPZRear]);
+
       });
     });
 
