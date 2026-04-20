@@ -14,6 +14,7 @@ import {
   ZONE_A,
   ZONE_B,
   ZONE_C,
+  BATTERY_ZONE,
   DS43_ZONE,
   COLORS,
   AISLE_WIDTH,
@@ -21,6 +22,7 @@ import {
 } from '@/lib/constants';
 import RacksLayout from './RacksLayout';
 import StagingLayout from './StagingLayout';
+import BatteryLayout from './BatteryLayout';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // BODEGA ESMAX — Layout Paramétrico (Flujo en "U")
@@ -562,6 +564,10 @@ export default function Warehouse() {
 
       {/* Staging Layout - Pallets en las zonas de Inbound/Outbound (X: 50-60) */}
       <StagingLayout />
+
+      {/* Battery Charging Zone (Esquina inferior izquierda) */}
+      <FloorZone zone={BATTERY_ZONE} opacity={0.3} />
+      <BatteryLayout />
 
       {/* ══════════════════════════════════════════════════════════════════════════════
           6. PASILLOS DE GRÚAS RETRÁCTILES (2.8m Rule)
