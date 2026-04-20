@@ -75,25 +75,26 @@ function GatesContainer() {
 
 export default function Scene() {
   return (
-    <Canvas
-      dpr={[1, 2]}
-      gl={{
-        antialias: true,
-        alpha: false,
-        powerPreference: 'high-performance',
-      }}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-      }}
-      tabIndex={0}
-    >
+    <>
       <SimulationUI />
-      {/* Set scene background color */}
-      <SceneBackground />
+      <Canvas
+        dpr={[1, 2]}
+        gl={{
+          antialias: true,
+          alpha: false,
+          powerPreference: 'high-performance',
+        }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+        }}
+        tabIndex={0}
+      >
+        {/* Set scene background color */}
+        <SceneBackground />
 
       {/* Clean, uniform lighting — no shadows for skeleton mode */}
       <ambientLight intensity={1.1} color="#ffffff" />
@@ -151,6 +152,7 @@ export default function Scene() {
           </group>
         ))}
       </Suspense>
-    </Canvas>
+      </Canvas>
+    </>
   );
 }

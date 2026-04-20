@@ -69,6 +69,8 @@ export default function SimulationUI() {
             }`}>
               {status === 'idle' ? 'Inactivo' : status.toUpperCase()}
             </span>
+          </div>
+
           <div className="flex justify-between items-center mb-4">
             <span className="text-white/50 text-[10px] uppercase tracking-widest">Velocidad</span>
             <div className="flex bg-black/20 rounded-lg p-0.5 overflow-hidden border border-white/5">

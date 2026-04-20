@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   TERRAIN_WIDTH,
