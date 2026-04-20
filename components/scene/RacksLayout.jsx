@@ -237,9 +237,8 @@ export default function RacksLayout() {
         else if (isZoneB) targetBeamArray = data.beamsB;
         else targetBeamArray = data.beamsC;
         
-        // Nivel C solo usa 5 niveles en total (Piso + 4 vigas suspendidas)
-        // Por ende usamos los primeros 4 montajes de viga (2, 4, 6, 8m).
-        const targetLevels = isZoneC ? [2.0, 4.0, 6.0, 8.0] : LEVELS;
+        // Usar la cantidad igual de niveles para que no le falte la parte de arriba
+        const targetLevels = LEVELS;
 
         // Por cada nivel añadir 4 vigas y 4 pallets
         targetLevels.forEach((levelY) => {
