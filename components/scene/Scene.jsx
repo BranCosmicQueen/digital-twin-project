@@ -29,13 +29,14 @@ function SceneBackground() {
 
 // Helpers to connect Store with Scene
 function SimulationTruck() {
-  const { truckVisible, truckPosition, truckRotation, truckColor } = useSimulationStore();
+  const { truckVisible, truckPosition, truckRotation, truckColor, truckStatus } = useSimulationStore();
   if (!truckVisible) return null;
   return (
     <Truck 
       position={truckPosition} 
       rotation={truckRotation} 
       color={truckColor} 
+      status={truckStatus}
     />
   );
 }

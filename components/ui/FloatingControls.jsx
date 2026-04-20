@@ -11,21 +11,21 @@ export default function FloatingControls() {
   const buttonStyle = {
     width: '48px',
     height: '48px',
-    borderRadius: '12px',
-    background: 'rgba(10, 15, 30, 0.9)',
-    backdropFilter: 'blur(16px)',
-    WebkitBackdropFilter: 'blur(16px)',
-    border: '1px solid rgba(255, 255, 255, 0.15)',
-    color: 'var(--text-bright)',
+    borderRadius: '14px',
+    background: 'rgba(255, 255, 255, 0.85)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(0, 0, 0, 0.08)',
+    color: '#374151',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.2s ease',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
+    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+    boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
   };
 
-  const itemClass = "transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed";
+  const itemClass = "transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed";
 
   return (
     <div className="fixed z-[60] bottom-6 right-6 flex flex-col gap-3">
@@ -53,7 +53,8 @@ export default function FloatingControls() {
           className={itemClass}
           style={{
             ...buttonStyle,
-            borderColor: status === 'inbound' ? 'var(--accent-cyan)' : buttonStyle.border,
+            borderColor: status === 'inbound' ? '#0ea5e9' : buttonStyle.border,
+            color: status === 'inbound' ? '#0ea5e9' : buttonStyle.color,
           }}
           title="Simular Entrada de Camión (Recepción)"
         >
@@ -67,7 +68,8 @@ export default function FloatingControls() {
           className={itemClass}
           style={{
             ...buttonStyle,
-            borderColor: status === 'outbound' ? 'var(--accent-orange)' : buttonStyle.border,
+            borderColor: status === 'outbound' ? '#10b981' : buttonStyle.border,
+            color: status === 'outbound' ? '#10b981' : buttonStyle.color,
           }}
           title="Simular Salida de Camión (Despacho)"
         >
@@ -85,7 +87,7 @@ export default function FloatingControls() {
         </button>
 
         {/* Divider */}
-        <div className="h-px bg-white/10 mx-2 my-1" />
+        <div className="h-px bg-black/10 mx-2 my-1" />
 
         {/* 3. View Settings (2D/3D) */}
         <button
@@ -94,17 +96,18 @@ export default function FloatingControls() {
           className={itemClass}
           style={{
             ...buttonStyle,
-            background: viewMode === '3d' ? 'var(--accent-cyan)' : buttonStyle.background,
-            color: viewMode === '3d' ? '#000' : buttonStyle.color,
+            background: viewMode === '3d' ? '#3B82F6' : buttonStyle.background,
+            color: viewMode === '3d' ? '#ffffff' : buttonStyle.color,
+            borderColor: viewMode === '3d' ? '#2563EB' : buttonStyle.border,
           }}
           title={viewMode === '2d' ? 'Cambiar a Vista 3D' : 'Cambiar a Vista Cenital 2D'}
         >
           <Icon 
-            icon={viewMode === '2d' ? "mdi:view-in-gallery" : "mdi:view-parallel"} 
+            icon={viewMode === '2d' ? "mdi:cube-outline" : "mdi:grid"} 
             width="24" 
           />
         </button>
       </div>
     </div>
-    );
+  );
 }

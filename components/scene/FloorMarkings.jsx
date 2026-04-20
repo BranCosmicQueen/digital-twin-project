@@ -168,17 +168,12 @@ function DS43FloorLines() {
 
 function GeneralTexts() {
   const labels = [
-    { text: 'BODEGA', position: [30, ZONE_Y + 0.05, 20], fontSize: 3, color: '#666', opacity: 0.5 },
-    { text: 'PATIO DE MANIOBRAS', position: [80, 0.05, 45], fontSize: 2, color: '#ffffff', opacity: 0.3 },
     { text: 'CALLE ADELA', position: [GATE_X + CALLE_ADELA_WIDTH / 2, 0.2, 25], fontSize: 2, color: '#ffffff', opacity: 0.5, rotationZ: Math.PI / 2 },
-    { text: 'PORTÓN ACCESO', position: [96, 0.05, GATE_MAIN_Z], fontSize: 1, color: COLORS.gateEntry, opacity: 1 },
-    { text: 'ROMANA', position: [ROMANA_X, 0.2, ROMANA_Z + ROMANA_DEPTH / 2 + 1.5], fontSize: 0.6, color: COLORS.weighbridge, fillOpacity: 0.7 },
-    { text: 'MUELLE CARGA', position: [DOCK_WALL_X + 5, 0.05, DOCK_CARGA_Z], fontSize: 0.8, color: COLORS.accentOutbound, opacity: 1 },
-    { text: 'MUELLE DESCARGA', position: [DOCK_WALL_X + 5, 0.05, DOCK_DESCARGA_Z], fontSize: 0.8, color: COLORS.accentInbound, opacity: 1 },
+    { text: 'PORTÓN ACCESO', position: [102, 0.05, GATE_MAIN_Z], fontSize: 1, color: COLORS.gateEntry, opacity: 1 },
     { text: '← 60m (BODEGA) →', position: [30, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
     { text: '← 40m (PATIO) →', position: [80, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
     { text: '← 100m (BASE TOTAL) →', position: [50, ZONE_Y + 0.02, -6], fontSize: 1.5, color: '#1f2937', opacity: 0.9 },
-    { text: '← 50m →', position: [-3.5, ZONE_Y + 0.02, 25], fontSize: 1.2, color: '#374151', opacity: 0.8, rotationZ: Math.PI / 2 },
+    { text: 'CARGA BATERÍAS', position: [5, ZONE_Y + 0.02, 46], rotation: [-Math.PI / 2, 0, 0], fontSize: 0.8, color: '#92400E', fillOpacity: 0.7 },
   ];
 
   return (
@@ -332,30 +327,15 @@ function PullZones() {
 export default function FloorMarkings() {
   return (
     <group>
-      {/* Inside Bodega Grid and Rulers */}
+      {/* Base Grid and Rulers explicitly left per user requirement (they are outside/infrastructure) */}
       <ReferenceGrid />
       <RulerLabels />
       
-      {/* Floor painted zones */}
-      <FloorZone zone={ZONE_A} opacity={0.1} />
-      <FloorZone zone={ZONE_B} opacity={0.06} />
-      <FloorZone zone={ZONE_C} opacity={0.06} />
-      <FloorZone zone={BATTERY_ZONE} opacity={0.3} />
-      
-      <FloorZone zone={STAGING_INBOUND} opacity={0.2} />
-      <FloorZone zone={STAGING_OUTBOUND} opacity={0.2} />
-
-      <DS43FloorLines />
-      <AisleCorridors />
-      <StagingFloors />
-      
-      {/* Master Doc Constrained Zones */}
-      <PedestrianZone />
-      <PullZones />
-      <SacredCircle />
-
-      {/* Free floating texts and labels across the whole site */}
+      {/* Free floating texts and labels specifically allowed outside the layout */}
       <GeneralTexts />
+      
+      {/* Sacred Turning Circle restored per requirement */}
+      <SacredCircle />
     </group>
   );
 }

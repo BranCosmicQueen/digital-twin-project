@@ -381,47 +381,7 @@ export default function RacksLayout() {
       <InstancedDrums positions={layoutData.drums} />
       <InstancedSafetyMesh positions={layoutData.safetyMeshes} rotY={0} />
 
-      {/* 3. Etiquetas Flotantes Alineadas por Zonas Exactas */}
-      <Text
-        position={[45, BODEGA_ELEVATION + RACK_HEIGHT + 1, LINE_Z_CENTERS[6]]}
-        rotation={[-Math.PI/2, 0, 0]}
-        fontSize={1}
-        color={COLOR_ZONE_A}
-        anchorX="center"
-        anchorY="bottom"
-      >
-        ZONA A (FLOW-THRU)
-      </Text>
-      <Text
-        position={[30, BODEGA_ELEVATION + RACK_HEIGHT + 1, LINE_Z_CENTERS[6]]}
-        rotation={[-Math.PI/2, 0, 0]}
-        fontSize={1}
-        color={COLOR_ZONE_B}
-        anchorX="center"
-        anchorY="bottom"
-      >
-        ZONA B (SELECTIVE)
-      </Text>
-      <Text
-        position={[15, BODEGA_ELEVATION + RACK_HEIGHT + 1, LINE_Z_CENTERS[6]]}
-        rotation={[-Math.PI/2, 0, 0]}
-        fontSize={1}
-        color={COLOR_ZONE_C}
-        anchorX="center"
-        anchorY="bottom"
-      >
-        ZONA C (SELECTIVE)
-      </Text>
-      <Text
-        position={[3, BODEGA_ELEVATION + 5 + 1.5, 25]} // Encima de la jaula
-        rotation={[-Math.PI/2, 0, 0]}
-        fontSize={1}
-        color="#F59E0B" // Amarillo advertencia
-        anchorX="center"
-        anchorY="bottom"
-      >
-        DS43 (INFLAMABLES)
-      </Text>
+      {/* Texts removed per clean base requirement */}
     </group>
   );
 }

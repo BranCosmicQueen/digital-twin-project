@@ -11,46 +11,71 @@ import {
   COLORS,
 } from '@/lib/constants';
 
-const Truck = forwardRef(function Truck({ visible = true, color, ...props }, ref) {
+const Truck = forwardRef(function Truck({ visible = true, color, status = 'idle', ...props }, ref) {
   if (!visible) return null;
 
   const wheelW = 0.35;
   const cabY = TRUCK_WHEEL_RADIUS + TRUCK_CAB_HEIGHT / 2;
   const trailerY = TRUCK_WHEEL_RADIUS + TRUCK_TRAILER_HEIGHT / 2;
 
+  // Blinking logic for reversing
+  const isReversing = status === 'reversing';
+  const intensity = isReversing ? (Math.sin(Date.now() * 0.01) > 0 ? 2 : 0.2) : 1;
+
   return (
     <group ref={ref} {...props}>
       {/* ── Cab ── */}
-      <group position={[0, 0, TRUCK_TRAILER_LENGTH / 2 + TRUCK_CAB_LENGTH / 2 + 0.5]}>
+      <group position={[0, 0, TRUCK_TRAILER_LENGTH / 2 + TRUCK_CAB_LENGTH / 2 + 0.1]}>
+        {/* Main Cab Block */}
         <mesh position={[0, cabY, 0]} castShadow>
           <boxGeometry args={[TRUCK_WIDTH, TRUCK_CAB_HEIGHT, TRUCK_CAB_LENGTH]} />
-          <meshStandardMaterial color={color || COLORS.truckCab} roughness={0.4} />
+          <meshStandardMaterial color={color || '#ef4444'} roughness={0.3} metalness={0.2} />
         </mesh>
 
-        {/* Windshield */}
-        <mesh position={[0, cabY + 0.3, TRUCK_CAB_LENGTH / 2 + 0.01]}>
-          <boxGeometry args={[TRUCK_WIDTH - 0.3, TRUCK_CAB_HEIGHT * 0.45, 0.05]} />
-          <meshStandardMaterial color="#1e3a5f" metalness={0.9} roughness={0.1} />
+        {/* Windshield (Cyan Glass) */}
+        <mesh position={[0, cabY + 0.4, TRUCK_CAB_LENGTH / 2 + 0.02]}>
+          <boxGeometry args={[TRUCK_WIDTH - 0.2, TRUCK_CAB_HEIGHT * 0.4, 0.05]} />
+          <meshStandardMaterial color="#2dd4bf" metalness={0.9} roughness={0.1} transparent opacity={0.8} />
         </mesh>
 
-        {/* Headlights */}
-        {[-0.9, 0.9].map((x, i) => (
-          <mesh key={`hl-${i}`} position={[x, cabY - 0.6, TRUCK_CAB_LENGTH / 2 + 0.05]}>
-            <boxGeometry args={[0.3, 0.2, 0.05]} />
-            <meshStandardMaterial color="#ffffaa" emissive="#ffffaa" emissiveIntensity={0.8} />
+        {/* Visor (Above windshield) */}
+        <mesh position={[0, cabY + TRUCK_CAB_HEIGHT / 2 - 0.1, TRUCK_CAB_LENGTH / 2 + 0.1]}>
+          <boxGeometry args={[TRUCK_WIDTH + 0.1, 0.2, 0.4]} />
+          <meshStandardMaterial color="#1f2937" />
+        </mesh>
+
+        {/* Side Mirrors */}
+        {[-1, 1].map((side) => (
+          <mesh key={`mirror-${side}`} position={[side * (TRUCK_WIDTH / 2 + 0.1), cabY + 0.2, TRUCK_CAB_LENGTH / 4]}>
+            <boxGeometry args={[0.1, 0.6, 0.2]} />
+            <meshStandardMaterial color="#1f2937" />
           </mesh>
         ))}
+
+        {/* Bright Headlights */}
+        {[-0.9, 0.9].map((x, i) => (
+          <mesh key={`hl-${i}`} position={[x, cabY - 0.7, TRUCK_CAB_LENGTH / 2 + 0.05]}>
+            <boxGeometry args={[0.4, 0.25, 0.05]} />
+            <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={status === 'parked' ? 0.2 : 1.5} />
+          </mesh>
+        ))}
+
+        {/* Front Grill */}
+        <mesh position={[0, cabY - 0.6, TRUCK_CAB_LENGTH / 2 + 0.02]}>
+          <boxGeometry args={[TRUCK_WIDTH - 0.8, 0.6, 0.05]} />
+          <meshStandardMaterial color="#1f2937" roughness={0.9} />
+        </mesh>
 
         {/* Cab wheels */}
         {[-1, 1].map((side) => (
           <mesh
             key={`cw-${side}`}
-            position={[side * (TRUCK_WIDTH / 2 + wheelW / 2), TRUCK_WHEEL_RADIUS, 0]}
+            position={[side * (TRUCK_WIDTH / 2 + wheelW / 4), TRUCK_WHEEL_RADIUS, 0.8]}
             rotation={[0, 0, Math.PI / 2]}
             castShadow
           >
-            <cylinderGeometry args={[TRUCK_WHEEL_RADIUS, TRUCK_WHEEL_RADIUS, wheelW, 12]} />
-            <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+            <cylinderGeometry args={[TRUCK_WHEEL_RADIUS, TRUCK_WHEEL_RADIUS, wheelW, 16]} />
+            <meshStandardMaterial color="#111" roughness={0.9} />
           </mesh>
         ))}
       </group>
@@ -62,42 +87,42 @@ const Truck = forwardRef(function Truck({ visible = true, color, ...props }, ref
           <meshStandardMaterial color={COLORS.truckTrailer} roughness={0.5} />
         </mesh>
 
-        {/* Frame */}
-        <mesh position={[0, TRUCK_WHEEL_RADIUS * 1.3, 0]}>
-          <boxGeometry args={[TRUCK_WIDTH + 0.1, 0.12, TRUCK_TRAILER_LENGTH]} />
-          <meshStandardMaterial color="#333" metalness={0.8} roughness={0.3} />
+        {/* Chassis Frame */}
+        <mesh position={[0, TRUCK_WHEEL_RADIUS * 1.2, 0]}>
+          <boxGeometry args={[TRUCK_WIDTH - 0.2, 0.2, TRUCK_TRAILER_LENGTH + TRUCK_CAB_LENGTH]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
 
-        {/* Rear door */}
+        {/* Rear Door Details */}
         <mesh position={[0, trailerY, -TRUCK_TRAILER_LENGTH / 2 - 0.05]}>
-          <boxGeometry args={[TRUCK_WIDTH - 0.1, TRUCK_TRAILER_HEIGHT - 0.3, 0.08]} />
-          <meshStandardMaterial color="#bbb" roughness={0.5} metalness={0.5} />
+          <boxGeometry args={[TRUCK_WIDTH - 0.2, TRUCK_TRAILER_HEIGHT - 0.4, 0.1]} />
+          <meshStandardMaterial color="#e5e7eb" roughness={0.4} metalness={0.3} />
         </mesh>
 
-        {/* Trailer wheels (dual axle) */}
+        {/* Trailer Wheels */}
         {[-1, 1].map((side) =>
-          [-2.5, 0].map((zOff, zi) => (
+          [-2, -3.2].map((zOff, zi) => (
             <mesh
               key={`tw-${side}-${zi}`}
               position={[
-                side * (TRUCK_WIDTH / 2 + wheelW / 2),
+                side * (TRUCK_WIDTH / 2 + wheelW / 4),
                 TRUCK_WHEEL_RADIUS,
-                -TRUCK_TRAILER_LENGTH / 4 + zOff,
+                -TRUCK_TRAILER_LENGTH / 2 + 2 + zOff,
               ]}
               rotation={[0, 0, Math.PI / 2]}
               castShadow
             >
-              <cylinderGeometry args={[TRUCK_WHEEL_RADIUS, TRUCK_WHEEL_RADIUS, wheelW, 12]} />
-              <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+              <cylinderGeometry args={[TRUCK_WHEEL_RADIUS, TRUCK_WHEEL_RADIUS, wheelW, 16]} />
+              <meshStandardMaterial color="#111" roughness={1} />
             </mesh>
           ))
         )}
 
-        {/* Taillights */}
-        {[-0.8, 0.8].map((x, i) => (
-          <mesh key={`tl-${i}`} position={[x, trailerY - 1.2, -TRUCK_TRAILER_LENGTH / 2 - 0.08]}>
-            <boxGeometry args={[0.25, 0.15, 0.05]} />
-            <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={0.5} />
+        {/* Taillights (Red) */}
+        {[-0.9, 0.9].map((x, i) => (
+          <mesh key={`tl-${i}`} position={[x, TRUCK_WHEEL_RADIUS + 0.4, -TRUCK_TRAILER_LENGTH / 2 - 0.08]}>
+            <boxGeometry args={[0.3, 0.2, 0.05]} />
+            <meshStandardMaterial color="#dc2626" emissive="#dc2626" emissiveIntensity={intensity} />
           </mesh>
         ))}
       </group>

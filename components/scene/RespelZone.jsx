@@ -63,13 +63,7 @@ export default function RespelZone() {
         </mesh>
       ))}
 
-      {/* Labels */}
-      <Text position={[0, wallH + 0.5, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={1.2} color="#fca5a5" anchorX="center" anchorY="middle">
-        ⚠ RESPEL DS148 (EXCEPCIÓN NORMATIVA)
-      </Text>
-      <Text position={[0, wallH + 0.5, 1]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.6} color="#f87171" anchorX="center" anchorY="middle">
-        MUROS RF-180
-      </Text>
+      {/* Labels removed per strict clean base instructions */}
     </group>
   );
 }

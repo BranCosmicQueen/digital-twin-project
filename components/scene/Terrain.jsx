@@ -153,21 +153,7 @@ export default function Terrain() {
         <meshStandardMaterial color="#4a90d9" emissive="#4a90d9" emissiveIntensity={0.3} transparent opacity={0.5} />
       </mesh>
 
-      {/* ── Lane markings ── */}
-      {laneMarkings.map((m, i) => (
-        <mesh key={`lane-${i}`} position={m.pos}>
-          <boxGeometry args={m.size} />
-          <meshStandardMaterial
-            color={m.color}
-            emissive={m.color}
-            emissiveIntensity={0.4}
-            transparent
-            opacity={0.6}
-          />
-        </mesh>
-      ))}
-
-      {/* ── Turning radius circle ── */}
+      {/* ── Turning radius circle restored per requirement ── */}
       {turningCircle.map((seg, i) => (
         <mesh key={`turn-${i}`} position={seg.pos} rotation={seg.rotation}>
           <boxGeometry args={seg.size} />
