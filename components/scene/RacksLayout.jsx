@@ -62,7 +62,7 @@ function InstancedPosts({ positions }) {
   );
 }
 
-function InstancedBeams({ color, positions, tilt = 0 }) {
+function InstancedBeams({ color, positions, tilt = 0, rotY = 0 }) {
   const meshRef = useRef();
   const geom = useMemo(() => new THREE.BoxGeometry(RACK_WIDTH - POST_W, BEAM_H, BEAM_D), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -71,13 +71,15 @@ function InstancedBeams({ color, positions, tilt = 0 }) {
     if (!meshRef.current || positions.length === 0) return;
     positions.forEach((pos, i) => {
       dummy.position.set(...pos);
-      // Aplicar inclinación si es Flow-Thru (Dynamic Rack)
+      // Aplicar rotaciones
+      dummy.rotation.x = 0;
+      dummy.rotation.y = rotY; 
       dummy.rotation.z = tilt; 
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
     });
     meshRef.current.instanceMatrix.needsUpdate = true;
-  }, [positions, tilt, dummy]);
+  }, [positions, tilt, rotY, dummy]);
 
   if (positions.length === 0) return null;
 
@@ -113,7 +115,7 @@ function InstancedDrums({ positions }) {
   );
 }
 
-function InstancedRackPallets({ positions, tilt = 0 }) {
+function InstancedRackPallets({ positions, tilt = 0, rotY = 0 }) {
   const meshRef = useRef();
   const geom = useMemo(() => new THREE.BoxGeometry(PALLET_W, PALLET_H, PALLET_D), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -122,14 +124,15 @@ function InstancedRackPallets({ positions, tilt = 0 }) {
     if (!meshRef.current || positions.length === 0) return;
     positions.forEach((pos, i) => {
       dummy.position.set(...pos);
-      dummy.rotation.z = tilt;
+      dummy.rotation.x = 0;
       // Pequeño jitter para darle imperfección realista
-      dummy.rotation.y = (Math.random() - 0.5) * 0.1;
+      dummy.rotation.y = rotY + (Math.random() - 0.5) * 0.1;
+      dummy.rotation.z = tilt;
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
     });
     meshRef.current.instanceMatrix.needsUpdate = true;
-  }, [positions, tilt, dummy]);
+  }, [positions, tilt, rotY, dummy]);
 
   if (positions.length === 0) return null;
 
@@ -144,9 +147,9 @@ function InstancedRackPallets({ positions, tilt = 0 }) {
   );
 }
 
-function InstancedSafetyMesh({ positions }) {
+function InstancedSafetyMesh({ positions, rotY = 0 }) {
   const meshRef = useRef();
-  // Malla vertical que recorrerá la espalda del rack (Ancho de body x Alto de Rack)
+  // Malla plana que recorrerá la espalda del rack (Ancho de body x Alto de Rack)
   const geom = useMemo(() => new THREE.PlaneGeometry(RACK_WIDTH, RACK_HEIGHT), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -154,14 +157,13 @@ function InstancedSafetyMesh({ positions }) {
     if (!meshRef.current || positions.length === 0) return;
     positions.forEach((pos, i) => {
       dummy.position.set(...pos);
-      // Las posiciones traen rotación si necesitan? No, el rack es paralelo a X
       dummy.rotation.x = 0;
-      dummy.rotation.y = 0;
+      dummy.rotation.y = rotY;
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
     });
     meshRef.current.instanceMatrix.needsUpdate = true;
-  }, [positions, dummy]);
+  }, [positions, rotY, dummy]);
 
   if (positions.length === 0) return null;
 
@@ -209,53 +211,20 @@ export default function RacksLayout() {
     LINE_Z_CENTERS.forEach((cz, lineIndex) => {
       // --- CALCULAR PILARES (POSTS) ---
       // Distribuir pórticos en los extremos de cada cuerpo individual en lugar de compartir contigüamente a través de todas las zonas
-      allCentersX.forEach((cx, i) => {
-        const isZoneC = i >= 9;
-        const isDrumRack = isZoneC && lineIndex === 0;
-
-        // Skip si estamos en zona C pero no es el drum rack
-        if (isZoneC && !isDrumRack) return;
-
-        const postXLeft = cx - (RACK_WIDTH / 2);
-        const postXRight = cx + (RACK_WIDTH / 2);
-        const postY = BODEGA_ELEVATION + RACK_HEIGHT / 2;
-        
-        // Cada pórtico tiene 3 pilares de fondo (Frontal, Medio, Trasero) en las baterías
-        [postXLeft, postXRight].forEach(postX => {
-          data.posts.push(
-            [postX, postY, cz - halfDepth],
-            [postX, postY, cz],
-            [postX, postY, cz + halfDepth]
-          );
-        });
-      });
-
-      // --- CALCULAR VIGAS (BEAMS) Y TAMBORES ---
+      // --- CALCULAR VIGAS (BEAMS) Y PALLETS ---
       allCentersX.forEach((cx, i) => {
         const isZoneA = i < 3;
         const isZoneB = i >= 3 && i < 9;
         const isZoneC = i >= 9;
 
-        // "No deben haber 7 racks destinados a tambores, solo 1 y pegado a la pared"
-        // Escogemos la línea del extremo (lineIndex === 0) como el rack exclusivo de tambores en la Zona C.
-        // ADEMÁS: En la Zona C, *solo* existe este rack. No hay más racks en la Zona C.
-        const isDrumRack = isZoneC && lineIndex === 0;
-
-        // Si estamos en la Zona C, pero no es la línea del DrumRack (lineIndex 0), abortamos y no renderizamos NINGÚN rack.
-        if (isZoneC && !isDrumRack) {
-          return; // Dejamos el espacio vacío ("almacenamiento a piso")
-        }
+        // La Zona C Horizontal ya NO existe
+        if (isZoneC) return;
 
         let targetBeamArray;
         if (isZoneA) targetBeamArray = data.beamsA;
         else if (isZoneB) targetBeamArray = data.beamsB;
-        else targetBeamArray = data.beamsC;
+        else return;
         
-        // Agregar malla de seguridad (Safety Mesh) a espaldas del rack de tambores
-        if (isDrumRack) {
-           data.safetyMeshes.push([cx, BODEGA_ELEVATION + RACK_HEIGHT / 2, cz]);
-        }
-
         // Por cada nivel añadir 4 vigas y 4 pallets (2 al frente paralelos, 2 atrás paralelos)
         LEVELS.forEach((levelY) => {
           const by = BODEGA_ELEVATION + levelY;
@@ -283,32 +252,82 @@ export default function RacksLayout() {
           let targetPalletArray;
           if (isZoneA) targetPalletArray = data.palletsA;
           else if (isZoneB) targetPalletArray = data.palletsB;
-          else targetPalletArray = data.palletsC;
 
           targetPalletArray.push([pxLeft, palletY, palletZFront]);
           targetPalletArray.push([pxRight, palletY, palletZFront]);
           targetPalletArray.push([pxLeft, palletY, palletZRear]);
           targetPalletArray.push([pxRight, palletY, palletZRear]);
-
-          // TAMBORES: Sólo en el Rack Exclusivo dictaminado, repoblándolo de tambores a tope en todos los 6 niveles
-          if (isDrumRack) {
-            const drumY = palletY + (PALLET_H / 2) + 0.45; // Base del pallet + mitad del tambor
-            
-            // Fila Frontal (Pallets Frontales)
-            data.drums.push([cx - 0.9, drumY, palletZFront]);
-            data.drums.push([cx - 0.5, drumY, palletZFront]);
-            data.drums.push([cx + 0.5, drumY, palletZFront]);
-            data.drums.push([cx + 0.9, drumY, palletZFront]);
-
-            // Fila Trasera (Pallets Traseros)
-            data.drums.push([cx - 0.9, drumY, palletZRear]);
-            data.drums.push([cx - 0.5, drumY, palletZRear]);
-            data.drums.push([cx + 0.5, drumY, palletZRear]);
-            data.drums.push([cx + 0.9, drumY, palletZRear]);
-          }
         });
 
       });
+    });
+
+    // ======= GENERACIÓN ESPECIAL: RACK VERTICAL DS43 (ZONA C) =======
+    // Vertical -> Posicionado a lo largo de Z, pegado a la pared X=0
+    const DS43_Z_CENTERS = [11.95, 14.85, 17.75, 20.65, 23.55, 26.45, 29.35, 32.25, 35.15, 38.05];
+    const cxC = 1.35; // Pegado al fondo X=0 (Centro del cuerpo Depth 2.4m + offset al muro)
+
+    DS43_Z_CENTERS.forEach((czC) => {
+       // --- PILARES VERTICALES ---
+       // El ancho del body ahora corre a lo largo del eje Z
+       const postZLeft = czC - (RACK_WIDTH / 2);
+       const postZRight = czC + (RACK_WIDTH / 2);
+       const postY = BODEGA_ELEVATION + RACK_HEIGHT / 2;
+       
+       // Generar los 3 Pilares en Eje X porque el marco corre profundo en X
+       [postZLeft, postZRight].forEach(postZ => {
+          data.posts.push(
+             [cxC - halfDepth, postY, postZ],
+             [cxC, postY, postZ],
+             [cxC + halfDepth, postY, postZ]
+          );
+       });
+
+       // --- VIGAS Y PALLETS VERTICALES ---
+       // Malla de seguridad centrada cortando Z
+       data.safetyMeshes.push([cxC, BODEGA_ELEVATION + RACK_HEIGHT / 2, czC]);
+       
+       LEVELS.forEach(levelY => {
+         const by = BODEGA_ELEVATION + levelY;
+         // Posiciones de vigas ahora varían en el Eje X (Profundidad)
+         const front1 = cxC - halfDepth + 0.1;
+         const front2 = cxC - 0.2;
+         const rear1 = cxC + 0.2;
+         const rear2 = cxC + halfDepth - 0.1;
+
+         data.beamsC.push(
+           [front1, by, czC],
+           [front2, by, czC],
+           [rear1, by, czC],
+           [rear2, by, czC]
+         );
+
+         const palletY = by + (BEAM_H / 2) + (PALLET_H / 2);
+         const palletXFront = (front1 + front2) / 2;
+         const palletXRear = (rear1 + rear2) / 2;
+         
+         const pzLeft = czC - 0.7;
+         const pzRight = czC + 0.7;
+
+         data.palletsC.push([palletXFront, palletY, pzLeft]);
+         data.palletsC.push([palletXFront, palletY, pzRight]);
+         data.palletsC.push([palletXRear, palletY, pzLeft]);
+         data.palletsC.push([palletXRear, palletY, pzRight]);
+
+         const drumY = palletY + (PALLET_H / 2) + 0.45;
+
+         // Pallets frontales (tambores de fondo según Z)
+         data.drums.push([palletXFront, drumY, czC - 0.9]);
+         data.drums.push([palletXFront, drumY, czC - 0.5]);
+         data.drums.push([palletXFront, drumY, czC + 0.5]);
+         data.drums.push([palletXFront, drumY, czC + 0.9]);
+
+         // Pallets traseros (tambores de fondo según Z)
+         data.drums.push([palletXRear, drumY, czC - 0.9]);
+         data.drums.push([palletXRear, drumY, czC - 0.5]);
+         data.drums.push([palletXRear, drumY, czC + 0.5]);
+         data.drums.push([palletXRear, drumY, czC + 0.9]);
+       });
     });
 
     return data;
@@ -316,19 +335,19 @@ export default function RacksLayout() {
 
   return (
     <group>
-      {/* 1. Geometría Estructural (Marcos y Vigas) */}
+      {/* 1. Geometría Estructural (Marcos y Vigas horizontales) */}
       <InstancedPosts positions={layoutData.posts} />
       <InstancedBeams color={COLOR_ZONE_A} positions={layoutData.beamsA} tilt={-0.03} /> {/* Flow-thru tilt */}
       <InstancedBeams color={COLOR_ZONE_B} positions={layoutData.beamsB} />
-      <InstancedBeams color={COLOR_ZONE_C} positions={layoutData.beamsC} />
-      
-      {/* 1.5 Malla Antiderrame para Rack Exclusivo */}
-      <InstancedSafetyMesh positions={layoutData.safetyMeshes} />
 
-      {/* 2. Objetos de Almacenamiento (Pallets repletos - 2,520 ops) */}
+      {/* RACK VERTICAL ZONA C */}
+      <InstancedBeams color={COLOR_ZONE_C} positions={layoutData.beamsC} rotY={Math.PI / 2} />
+      <InstancedSafetyMesh positions={layoutData.safetyMeshes} rotY={Math.PI / 2} />
+
+      {/* 2. Objetos de Almacenamiento */}
       <InstancedRackPallets positions={layoutData.palletsA} tilt={-0.03} />
       <InstancedRackPallets positions={layoutData.palletsB} />
-      <InstancedRackPallets positions={layoutData.palletsC} />
+      <InstancedRackPallets positions={layoutData.palletsC} rotY={Math.PI / 2} />
 
       {/* 3. Objetos de Emergencia (Tambores DS43) */}
       <InstancedDrums positions={layoutData.drums} />
