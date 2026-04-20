@@ -65,19 +65,19 @@ export default function SimulationUI() {
             <span className={`text-xs px-2 py-0.5 rounded-full font-bold uppercase ${
               status === 'idle' ? 'text-white/30' : 'text-blue-400 bg-blue-400/10'
             }`}>
-              {status}
+              {status === 'idle' ? 'Inactivo' : status.toUpperCase()}
             </span>
           </div>
           
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-black/20 rounded-lg p-3">
-              <p className="text-white/40 text-[10px] uppercase font-bold">Barrels</p>
+              <p className="text-white/40 text-[10px] uppercase font-bold">Tambores</p>
               <p className="text-white text-xl font-mono leading-none">{barrelsDelivered}</p>
             </div>
             <div className="bg-black/20 rounded-lg p-3">
-              <p className="text-white/40 text-[10px] uppercase font-bold">X-Position</p>
+              <p className="text-white/40 text-[10px] uppercase font-bold">Posición X</p>
               <p className="text-white text-xl font-mono leading-none tracking-tight">
-                {truckPosition[0].toFixed(1)}
+                {truckPosition[0].toFixed(1)}m
               </p>
             </div>
           </div>
@@ -87,7 +87,7 @@ export default function SimulationUI() {
       {/* --- Legend/Help (Subtle) --- */}
       <div className="bg-black/10 backdrop-blur-md rounded-xl p-3 border border-white/5">
         <p className="text-[10px] text-white/30 leading-relaxed italic">
-          * Los camioneros deben realizar pesaje obligatorio en romana antes de descarga.
+          * Los camiones deben detenerse obligatoriamente en la romana para pesaje.
         </p>
       </div>
     </div>

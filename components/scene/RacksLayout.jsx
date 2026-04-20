@@ -217,15 +217,16 @@ export default function RacksLayout() {
     const postOffset = halfDepth - (POST_W / 2);
 
       // === MATRIZ DE COORDENADAS Rígidas (Para respetar bordes de zonas exactamente) ===
-      // Zona A (X: 40-50). Centro = 45. 3 cuerpos = 8.7m.
-      const centersA = [47.9, 45.0, 42.1];
+      // === MATRIZ DE COORDENADAS Rígidas (Para alcanzar 105 cuerpos exactos: 15 per línea) ===
+      // Paso de rack = 2.9m. 
+      // Zona C (X: 6.2 - 23.6). 6 cuerpos.
+      const centersC = [7.65, 10.55, 13.45, 16.35, 19.25, 22.15];
       
-      // Zona B (X: 23.5-38.0). 5 cuerpos = 14.5m
-      const centersB = [36.55, 33.65, 30.75, 27.85, 24.95];
+      // Zona B (X: 23.6 - 41.0). 6 cuerpos.
+      const centersB = [25.05, 27.95, 30.85, 33.75, 36.65, 39.55];
       
-      // Zona C (X: 8.0-22.5). 5 cuerpos = 14.5m
-      // Separación de seguridad de DS43 (0 a 6m): Espacio vacío de X=6 a X=8.
-      const centersC = [21.05, 18.15, 15.25, 12.35, 9.45];
+      // Zona A (X: 41.0 - 49.7). 3 cuerpos.
+      const centersA = [42.45, 45.35, 48.25];
 
       const allCentersX = [...centersA, ...centersB, ...centersC]; 
 
