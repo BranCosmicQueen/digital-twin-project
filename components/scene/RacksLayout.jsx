@@ -200,13 +200,12 @@ export default function RacksLayout() {
       // Zona A (X: 40-50). Centro = 45. 3 cuerpos = 8.7m.
       const centersA = [47.9, 45.0, 42.1];
       
-      // Zona B (X: 20-40). Centro = 30. 6 cuerpos = 17.4m.
-      const centersB = [37.25, 34.35, 31.45, 28.55, 25.65, 22.75];
+      // Zona B (X: 23.5-38.0). 5 cuerpos = 14.5m
+      const centersB = [36.55, 33.65, 30.75, 27.85, 24.95];
       
-      // Zona C (X: 6-20). DS43 ocupa de 0 a 6m. Así que C empieza en > 6m.
-      // Omitimos cuerpos que caen dentro de X=0 a 6. (ej. 4.2 chocaba). 7.1 tocaba 5.65.
-      // Usaremos centros que respeten el límite de >6m.
-      const centersC = [18.7, 15.8, 12.9, 10.0, 7.5];
+      // Zona C (X: 8.0-22.5). 5 cuerpos = 14.5m
+      // Separación de seguridad de DS43 (0 a 6m): Espacio vacío de X=6 a X=8.
+      const centersC = [21.05, 18.15, 15.25, 12.35, 9.45];
 
       const allCentersX = [...centersA, ...centersB, ...centersC]; 
 
@@ -288,12 +287,11 @@ export default function RacksLayout() {
     // Renderizamos las paredes en Scene con componentes fijos. Instanciamos solo los pallets y tambores aquí.
     
     // Grid de pallets en el piso dentro de la jaula DS43
-    // Pallets tienen ~1.2m profundidad de Z. 1.0m ancho de X.
-    // Llenaremos el suelo dejando un pequeño pasillo
+    // Llenaremos el suelo solo con DOS hileras de pallets
     const ds43Z = [];
     for(let z = 11; z <= 39; z += 1.5) ds43Z.push(z);
     
-    const ds43X = [0.8, 2.3, 3.8, 5.3]; // 4 columnas de pallets
+    const ds43X = [2.0, 4.0]; // Exactamente 2 columnas (hileras de izquierda a derecha)
 
     ds43Z.forEach(cz => {
       ds43X.forEach(cx => {
