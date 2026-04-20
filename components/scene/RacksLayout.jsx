@@ -3,7 +3,7 @@
 import { useMemo, useRef, useLayoutEffect } from 'react';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
-import { RACK_WIDTH, RACK_DEPTH, BODEGA_ELEVATION } from '@/lib/constants';
+import { RACK_WIDTH, RACK_DEPTH, BODEGA_ELEVATION, DS43_ZONE, DS43_BUFFER, PEDESTRIAN_ZONE_Z_START } from '@/lib/constants';
 
 // Z-centers for the 7 rack lines
 const LINE_Z_CENTERS = [13.6, 18.8, 21.2, 26.4, 28.8, 34.0, 36.4];
@@ -231,8 +231,15 @@ export default function RacksLayout() {
       const allCentersX = [...centersA, ...centersB, ...centersC]; 
 
     LINE_Z_CENTERS.forEach((cz, lineIndex) => {
+      // Bounding Box checks for exclusions
+      const isPedestrianZone = cz > PEDESTRIAN_ZONE_Z_START - 2;
+
       // --- CALCULAR PILARES (POSTS) ---
       allCentersX.forEach((cx) => {
+        // DS43 Buffer check: DS43 occupies X 0..20, Z 0..10. Plus 2.8m buffer -> X < 22.8 AND Z < 12.8
+        const inDS43Aura = (cx < (DS43_ZONE.xMax + DS43_BUFFER)) && (cz < (DS43_ZONE.zMax + DS43_BUFFER));
+        if (inDS43Aura || isPedestrianZone) return;
+
         const postXLeft = cx - (RACK_WIDTH / 2);
         const postXRight = cx + (RACK_WIDTH / 2);
         const postY = BODEGA_ELEVATION + RACK_HEIGHT / 2;
@@ -249,6 +256,19 @@ export default function RacksLayout() {
 
       // --- CALCULAR VIGAS (BEAMS) Y PALLETS ---
       allCentersX.forEach((cx, i) => {
+        const inDS43Aura = (cx < (DS43_ZONE.xMax + DS43_BUFFER)) && (cz < (DS43_ZONE.zMax + DS43_BUFFER));
+        if (inDS43Aura || isPedestrianZone) return;
+
+        // Is it adjancent to the DS43 Aura? Put a safety mesh on its back!
+        // The aura boundary is roughly X=22.8 or Z=12.8.
+        const isNeighborToAura = (cx >= (DS43_ZONE.xMax + DS43_BUFFER) && cx < (DS43_ZONE.xMax + DS43_BUFFER + 3)) || 
+                                 (cz >= (DS43_ZONE.zMax + DS43_BUFFER) && cz < (DS43_ZONE.zMax + DS43_BUFFER + 3));
+
+        if (isNeighborToAura && cx < 30 && cz < 20) {
+          // Put basic safety mesh back of rack
+          data.safetyMeshes.push([cx, BODEGA_ELEVATION + RACK_HEIGHT / 2, cz]);
+        }
+
         const isZoneA = i < 3;
         const isZoneB = i >= 3 && i < 9;
         const isZoneC = i >= 9;
@@ -309,12 +329,14 @@ export default function RacksLayout() {
     // Mismo material que usábamos para SafetyMesh pero formará una caja hueca sin tapa.
     // Renderizamos las paredes en Scene con componentes fijos. Instanciamos solo los pallets y tambores aquí.
     
-    // Grid de pallets en el piso dentro de la jaula DS43 (ALTA DENSIDAD)
+    // Grid de pallets en el piso dentro de la jaula DS43
+    // La jaula DS43 ahora mide 20m de ancho x 10m de fondo (X: 0 a 20, Z: 0 a 10)
     const ds43Z = [];
-    for(let z = 10.75; z <= 39.25; z += 1.35) ds43Z.push(z); // Espaciado más cerrado (1.35m vs 1.5m)
+    for(let z = 1.0; z <= 9.0; z += 1.35) ds43Z.push(z);
     
-    // 5 columnas pegadas a la pared (X=0)
-    const ds43X = [0.6, 1.7, 2.8, 3.9, 5.0]; 
+    // Columnas adaptadas a los 20m
+    const ds43X = [];
+    for (let x = 1; x <= 19; x += 1.5) ds43X.push(x); 
 
     // Niveles de apilado (2 niveles para mayor eficiencia)
     const ds43Levels = [
@@ -355,8 +377,9 @@ export default function RacksLayout() {
       <InstancedRackPallets positions={layoutData.palletsB} />
       <InstancedRackPallets positions={layoutData.palletsC} />
 
-      {/* 3. Objetos de Emergencia (Tambores DS43) */}
+      {/* 3. Objetos de Emergencia (Tambores DS43) y Anti-caídas */}
       <InstancedDrums positions={layoutData.drums} />
+      <InstancedSafetyMesh positions={layoutData.safetyMeshes} rotY={0} />
 
       {/* 3. Etiquetas Flotantes Alineadas por Zonas Exactas */}
       <Text

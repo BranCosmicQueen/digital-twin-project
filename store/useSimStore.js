@@ -3,9 +3,8 @@ import { create } from 'zustand';
 const useSimStore = create((set, get) => ({
   // Default to 2D cenital for dimensional validation
   viewMode: '2d',
-
-  // Camera animation lock
   isAnimating: false,
+  uiVisible: true,
 
   toggleView: () => {
     const current = get();
@@ -13,7 +12,10 @@ const useSimStore = create((set, get) => ({
     set({ viewMode: current.viewMode === '2d' ? '3d' : '2d' });
   },
 
+  toggleUi: () => set((state) => ({ uiVisible: !state.uiVisible })),
+
   setIsAnimating: (value) => set({ isAnimating: value }),
+
 
   reset: () => set({ viewMode: '2d', isAnimating: false }),
 }));

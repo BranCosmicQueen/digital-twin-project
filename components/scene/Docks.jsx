@@ -1,14 +1,11 @@
 'use client';
 
-import { Text } from '@react-three/drei';
 import {
   DOCK_WALL_X,
   DOCK_WIDTH,
   DOCK_DEPTH,
-  DOCK_INBOUND_1_Z,
-  DOCK_INBOUND_2_Z,
-  DOCK_OUTBOUND_3_Z,
-  DOCK_OUTBOUND_4_Z,
+  DOCK_CARGA_Z,
+  DOCK_DESCARGA_Z,
   BODEGA_ELEVATION,
   CONTAINMENT_CHANNEL_X,
   CONTAINMENT_CHANNEL_WIDTH,
@@ -18,10 +15,8 @@ import {
 } from '@/lib/constants';
 
 const docks = [
-  { z: DOCK_INBOUND_1_Z, label: 'MUELLE 1', type: 'inbound' },
-  { z: DOCK_INBOUND_2_Z, label: 'MUELLE 2', type: 'inbound' },
-  { z: DOCK_OUTBOUND_3_Z, label: 'MUELLE 3', type: 'outbound' },
-  { z: DOCK_OUTBOUND_4_Z, label: 'MUELLE 4', type: 'outbound' },
+  { z: DOCK_CARGA_Z, type: 'outbound' },
+  { z: DOCK_DESCARGA_Z, type: 'inbound' },
 ];
 
 export default function Docks() {
@@ -73,52 +68,9 @@ export default function Docks() {
                 opacity={0.8}
               />
             </mesh>
-
-            {/* Label on patio floor */}
-            <Text
-              position={[DOCK_WALL_X + DOCK_DEPTH + 2, 0.05, dock.z]}
-              rotation={[-Math.PI / 2, 0, 0]}
-              fontSize={0.8}
-              color={accent}
-              anchorX="center"
-              anchorY="middle"
-            >
-              {dock.label}
-            </Text>
           </group>
         );
       })}
-
-      {/* ── Staging Areas (inside bodega, near dock wall) ── */}
-      {/* Staging Inbound */}
-      <mesh
-        position={[DOCK_WALL_X - 7, BODEGA_ELEVATION + 0.02, (DOCK_INBOUND_1_Z + DOCK_INBOUND_2_Z) / 2]}
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <planeGeometry args={[12, 8]} />
-        <meshStandardMaterial
-          color={COLORS.stagingInbound}
-          transparent
-          opacity={0.06}
-          emissive={COLORS.stagingInbound}
-          emissiveIntensity={0.15}
-        />
-      </mesh>
-
-      {/* Staging Outbound */}
-      <mesh
-        position={[DOCK_WALL_X - 7, BODEGA_ELEVATION + 0.02, (DOCK_OUTBOUND_3_Z + DOCK_OUTBOUND_4_Z) / 2]}
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <planeGeometry args={[12, 8]} />
-        <meshStandardMaterial
-          color={COLORS.stagingOutbound}
-          transparent
-          opacity={0.06}
-          emissive={COLORS.stagingOutbound}
-          emissiveIntensity={0.15}
-        />
-      </mesh>
 
       {/* ═══ Canaleta de Contención DS 43 (X=63) ═══ */}
       <mesh position={[CONTAINMENT_CHANNEL_X, 0, TERRAIN_DEPTH / 2]}>

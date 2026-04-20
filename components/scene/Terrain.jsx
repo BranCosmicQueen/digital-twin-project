@@ -1,21 +1,18 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   TERRAIN_WIDTH,
   TERRAIN_DEPTH,
   PATIO_X_START,
   PATIO_WIDTH,
-  BODEGA_WIDTH,
   GATE_X,
-  GATE_ENTRY_Z,
-  GATE_EXIT_Z,
+  GATE_WIDTH,
+  GATE_MAIN_Z,
   TURNING_RADIUS,
   PATIO_CENTER_X,
   PATIO_CENTER_Z,
-  CONTAINMENT_CHANNEL_X,
   CALLE_ADELA_WIDTH,
   COLORS,
 } from '@/lib/constants';
@@ -25,28 +22,15 @@ export default function Terrain() {
   const laneMarkings = useMemo(() => {
     const markings = [];
 
-    // ── Inbound lane (Portón Entrada Z=5 → Romana → Muelles) ──
-    // Straight from gate entry to weighbridge
-    for (let x = 100; x > 80; x -= 3) {
+    // ── Inbound/Outbound central lane (Portón Principal Z=25 → Romana/Patio) ──
+    for (let x = 100; x > 75; x -= 3) {
       markings.push({
-        pos: [x, 0.02, GATE_ENTRY_Z],
+        pos: [x, 0.02, GATE_MAIN_Z - 1.5],
         size: [2, 0.02, 0.12],
         color: COLORS.accentInbound,
       });
-    }
-    // Lane from weighbridge down to docks
-    for (let z = 12; z < 22; z += 2) {
       markings.push({
-        pos: [70, 0.02, z],
-        size: [0.12, 0.02, 1.2],
-        color: COLORS.accentInbound,
-      });
-    }
-
-    // ── Outbound lane (Portón Salida Z=39 → Muelles) ──
-    for (let x = 100; x > 65; x -= 3) {
-      markings.push({
-        pos: [x, 0.02, GATE_EXIT_Z],
+        pos: [x, 0.02, GATE_MAIN_Z + 1.5],
         size: [2, 0.02, 0.12],
         color: COLORS.accentOutbound,
       });
@@ -93,6 +77,10 @@ export default function Terrain() {
     return segments;
   }, []);
 
+  // Perimeter border walls with single gap calculation
+  const gateZStart = GATE_MAIN_Z - GATE_WIDTH / 2;
+  const gateZEnd = GATE_MAIN_Z + GATE_WIDTH / 2;
+
   return (
     <group>
       {/* ── Main ground plane ── */}
@@ -125,29 +113,6 @@ export default function Terrain() {
         <meshStandardMaterial color={COLORS.asphaltCalle} roughness={0.7} />
       </mesh>
 
-      {/* Labels for Identification */}
-      <Text
-        position={[GATE_X + CALLE_ADELA_WIDTH / 2, 0.2, 25]}
-        rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-        fontSize={2}
-        color="#ffffff"
-        opacity={0.5}
-        transparent
-      >
-        CALLE ADELA
-      </Text>
-
-      <Text
-        position={[80, 0.2, 45]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        fontSize={1.5}
-        color="#ffffff"
-        opacity={0.3}
-        transparent
-      >
-        PATIO DE MANIOBRAS
-      </Text>
-
       {/* ── Grid ── */}
       <gridHelper
         args={[Math.max(TERRAIN_WIDTH, TERRAIN_DEPTH) * 1.2, 60, COLORS.terrainGrid, COLORS.terrainGrid]}
@@ -172,17 +137,13 @@ export default function Terrain() {
         <boxGeometry args={[0.15, 0.1, TERRAIN_DEPTH]} />
         <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={0.2} />
       </mesh>
-      {/* East (X=100) — con gaps para portones */}
-      <mesh position={[GATE_X, 0.05, GATE_ENTRY_Z / 2]}>
-        <boxGeometry args={[0.15, 0.1, GATE_ENTRY_Z - 3]} />
+      {/* East (X=100) — con SINGLE gap para el portón de 10m */}
+      <mesh position={[GATE_X, 0.05, gateZStart / 2]}>
+        <boxGeometry args={[0.15, 0.1, gateZStart]} />
         <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={0.2} />
       </mesh>
-      <mesh position={[GATE_X, 0.05, (GATE_ENTRY_Z + 6 + GATE_EXIT_Z) / 2]}>
-        <boxGeometry args={[0.15, 0.1, GATE_EXIT_Z - GATE_ENTRY_Z - 6]} />
-        <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={0.2} />
-      </mesh>
-      <mesh position={[GATE_X, 0.05, (GATE_EXIT_Z + 6 + TERRAIN_DEPTH) / 2]}>
-        <boxGeometry args={[0.15, 0.1, TERRAIN_DEPTH - GATE_EXIT_Z - 6]} />
+      <mesh position={[GATE_X, 0.05, gateZEnd + (TERRAIN_DEPTH - gateZEnd) / 2]}>
+        <boxGeometry args={[0.15, 0.1, TERRAIN_DEPTH - gateZEnd]} />
         <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={0.2} />
       </mesh>
 

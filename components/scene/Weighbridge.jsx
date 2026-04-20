@@ -1,6 +1,5 @@
 'use client';
 
-import { Text } from '@react-three/drei';
 import {
   ROMANA_X,
   ROMANA_Z,
@@ -42,19 +41,6 @@ export default function Weighbridge() {
         <boxGeometry args={[0.05, 0.8, 1.5]} />
         <meshStandardMaterial color="#1e3a5f" metalness={0.9} roughness={0.1} />
       </mesh>
-
-      {/* Label */}
-      <Text
-        position={[0, 0.2, ROMANA_DEPTH / 2 + 1.5]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        fontSize={0.6}
-        color={COLORS.weighbridge}
-        anchorX="center"
-        anchorY="middle"
-        fillOpacity={0.7}
-      >
-        ROMANA
-      </Text>
     </group>
   );
 }
