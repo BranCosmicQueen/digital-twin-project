@@ -24,6 +24,11 @@ const COLOR_ZONE_B = '#EA580C'; // Naranja industrial
 const COLOR_ZONE_C = '#4B5563'; // Gris oscuro
 const COLOR_POST = '#1E3A8A';   // Azul marino para pilares
 
+// Dimensiones estándar Pallet
+const PALLET_W = 1.0; 
+const PALLET_D = 1.2;
+const PALLET_H = 0.15;
+
 // ══════════════════════════════════════════════════════════════════════════════
 // Componentes de InstancedMesh
 // ══════════════════════════════════════════════════════════════════════════════
@@ -108,6 +113,37 @@ function InstancedDrums({ positions }) {
   );
 }
 
+function InstancedRackPallets({ positions, tilt = 0 }) {
+  const meshRef = useRef();
+  const geom = useMemo(() => new THREE.BoxGeometry(PALLET_W, PALLET_H, PALLET_D), []);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  useLayoutEffect(() => {
+    if (!meshRef.current || positions.length === 0) return;
+    positions.forEach((pos, i) => {
+      dummy.position.set(...pos);
+      dummy.rotation.z = tilt;
+      // Pequeño jitter para darle imperfección realista
+      dummy.rotation.y = (Math.random() - 0.5) * 0.1;
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    });
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  }, [positions, tilt, dummy]);
+
+  if (positions.length === 0) return null;
+
+  return (
+    <instancedMesh ref={meshRef} args={[geom, null, positions.length]}>
+      <meshStandardMaterial color="#DEB887" roughness={0.9} metalness={0.0} />
+      <lineSegments>
+        <edgesGeometry args={[geom]} />
+        <lineBasicMaterial color="#000000" opacity={0.2} transparent />
+      </lineSegments>
+    </instancedMesh>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // MAIN LAYOUT
 // ══════════════════════════════════════════════════════════════════════════════
@@ -119,6 +155,9 @@ export default function RacksLayout() {
       beamsA: [],
       beamsB: [],
       beamsC: [],
+      palletsA: [],
+      palletsB: [],
+      palletsC: [],
       drums: [],
     };
 
@@ -166,7 +205,7 @@ export default function RacksLayout() {
         else if (isZoneB) targetBeamArray = data.beamsB;
         else targetBeamArray = data.beamsC;
 
-        // Por cada nivel añadir 4 vigas 
+        // Por cada nivel añadir 4 vigas y 4 pallets (2 al frente paralelos, 2 atrás paralelos)
         LEVELS.forEach((levelY) => {
           const by = BODEGA_ELEVATION + levelY;
           // Z posiciones para las vigas: frontal, medio1, medio2, trasero
@@ -181,6 +220,27 @@ export default function RacksLayout() {
             [cx, by, rear1],
             [cx, by, rear2]
           );
+
+          // Generación de 4 Pallets por nivel (2.520 Pallets en Total!)
+          const palletY = by + (BEAM_H / 2) + (PALLET_H / 2);
+          const palletZFront = (front1 + front2) / 2;
+          const palletZRear = (rear1 + rear2) / 2;
+
+          // Espacio en X para los 2 pallets paralelos compartiendo un cuerpo de 2.9m
+          const pxLeft = cx - 0.7; // ~0.7 metros del centro del body ancho 2.9m
+          const pxRight = cx + 0.7;
+
+          let targetPalletArray;
+          if (isZoneA) targetPalletArray = data.palletsA;
+          else if (isZoneB) targetPalletArray = data.palletsB;
+          else targetPalletArray = data.palletsC;
+
+          // Los Pallets se pushean apoyándose sobre sus ejes respectivos
+          targetPalletArray.push([pxLeft, palletY, palletZFront]);
+          targetPalletArray.push([pxRight, palletY, palletZFront]);
+          targetPalletArray.push([pxLeft, palletY, palletZRear]);
+          targetPalletArray.push([pxRight, palletY, palletZRear]);
+
         });
 
         // TAMBORES (Solamente en Zona C, en el nivel base a suelo y nivel 1)
@@ -218,7 +278,12 @@ export default function RacksLayout() {
       <InstancedBeams color={COLOR_ZONE_B} positions={layoutData.beamsB} />
       <InstancedBeams color={COLOR_ZONE_C} positions={layoutData.beamsC} />
 
-      {/* 2. Objetos de Emergencia (Tambores DS43) */}
+      {/* 2. Objetos de Almacenamiento (Pallets repletos - 2,520 ops) */}
+      <InstancedRackPallets positions={layoutData.palletsA} tilt={-0.03} />
+      <InstancedRackPallets positions={layoutData.palletsB} />
+      <InstancedRackPallets positions={layoutData.palletsC} />
+
+      {/* 3. Objetos de Emergencia (Tambores DS43) */}
       <InstancedDrums positions={layoutData.drums} />
 
       {/* 3. Etiquetas Flotantes Alineadas por Zonas Exactas */}
