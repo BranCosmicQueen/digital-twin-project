@@ -1,7 +1,8 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useRef, useLayoutEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
+import gsap from 'gsap';
 import * as THREE from 'three';
 
 import CameraController from './CameraController';
@@ -12,7 +13,10 @@ import Weighbridge from './Weighbridge';
 import RespelZone from './RespelZone';
 import Gates from './Gates';
 import Truck from './Truck';
-import { COLORS } from '@/lib/constants';
+import SimulationManager from './SimulationManager';
+import SimulationUI from '../ui/SimulationUI';
+import { useSimulationStore } from '@/lib/store';
+import { COLORS, BODEGA_ELEVATION } from '@/lib/constants';
 
 // ══════════════════════════════════════════════════════════════════
 // HARD RESET — Scene: Lienzo en blanco con esqueleto de bodega
@@ -25,6 +29,48 @@ function SceneBackground() {
     scene.background = new THREE.Color(COLORS.background);
   }, [scene]);
   return null;
+}
+
+// ── Helpers para conectar el Store con la Escena ──
+function SimulationTruck() {
+  const { truckVisible, truckPosition, truckRotation, truckColor } = useSimulationStore();
+  if (!truckVisible) return null;
+  return (
+    <Truck 
+      position={truckPosition} 
+      rotation={truckRotation} 
+      color={truckColor} 
+    />
+  );
+}
+
+function GatesContainer() {
+  const { gateEntryOpen, gateExitOpen } = useSimulationStore();
+  const entryRef = useRef();
+  const exitRef = useRef();
+
+  // Animación suave de los portones basado en el estado
+  useLayoutEffect(() => {
+    if (entryRef.current) {
+      gsap.to(entryRef.current.position, {
+        y: gateEntryOpen ? 5 + 3 : 5, // Sube para abrir
+        duration: 1,
+        ease: 'power2.inOut'
+      });
+    }
+  }, [gateEntryOpen]);
+
+  useLayoutEffect(() => {
+    if (exitRef.current) {
+      gsap.to(exitRef.current.position, {
+        y: gateExitOpen ? 5 + 3 : 5,
+        duration: 1,
+        ease: 'power2.inOut'
+      });
+    }
+  }, [gateExitOpen]);
+
+  return <Gates inboundGateRef={entryRef} outboundGateRef={exitRef} />;
 }
 
 export default function Scene() {
@@ -45,6 +91,7 @@ export default function Scene() {
       }}
       tabIndex={0}
     >
+      <SimulationUI />
       {/* Set scene background color */}
       <SceneBackground />
 
@@ -64,26 +111,19 @@ export default function Scene() {
         {/* Indoor Logic (Warehouse X: 0-60) */}
         <Warehouse />
 
+        {/* --- Simulation Logic & Manager --- */}
+        <SimulationManager />
+
         {/* Outdoor Logic (Patio X: 60-100) */}
         <Docks />
         <Weighbridge />
         <RespelZone />
-        <Gates />
-
-        {/* Operational Vehicles (Camiones) */}
-        {/* Truck 1: Entering via North Portón */}
-        <Truck 
-          position={[110, 0, 5]} 
-          rotation={[0, -Math.PI / 2, 0]} 
-          color="#be123c" 
-        />
         
-        {/* Truck 2: Docked at Muelle 2 */}
-        <Truck 
-          position={[68, 0, 19]} 
-          rotation={[0, Math.PI / 2, 0]} 
-          color="#1e293b" 
-        />
+        {/* State-driven automated Gates */}
+        <GatesContainer />
+
+        {/* State-driven Simulation Truck */}
+        <SimulationTruck />
 
         {/* Industrial Lighting Posts */}
         {[70, 90, 105].map((x) => (
