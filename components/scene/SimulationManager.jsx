@@ -22,10 +22,17 @@ export default function SimulationManager() {
     setTruckTransform, 
     setGateEntryOpen, 
     setGateExitOpen,
-    addBarrels
+    addBarrels,
+    simSpeed
   } = useSimulationStore();
 
   const tlRef = useRef();
+
+  useLayoutEffect(() => {
+    if (tlRef.current) {
+      tlRef.current.timeScale(simSpeed);
+    }
+  }, [simSpeed]);
 
   useLayoutEffect(() => {
     if (status === 'inbound') {

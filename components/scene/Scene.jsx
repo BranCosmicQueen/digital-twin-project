@@ -96,8 +96,9 @@ export default function Scene() {
       <SceneBackground />
 
       {/* Clean, uniform lighting — no shadows for skeleton mode */}
-      <ambientLight intensity={0.9} color="#ffffff" />
-      <directionalLight position={[30, 50, 25]} intensity={0.5} color="#ffffff" />
+      <ambientLight intensity={1.1} color="#ffffff" />
+      <directionalLight position={[30, 50, 25]} intensity={1.2} color="#ffffff" />
+      <directionalLight position={[100, 30, 25]} intensity={0.5} color="#cbd5e1" />
 
       {/* No fog — full visibility for dimensional validation */}
 

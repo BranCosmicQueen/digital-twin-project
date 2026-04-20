@@ -8,7 +8,9 @@ export default function SimulationUI() {
     setStatus, 
     resetSimulation, 
     barrelsDelivered,
-    truckPosition
+    truckPosition,
+    simSpeed,
+    setSimSpeed
   } = useSimulationStore();
 
   const isBusy = status !== 'idle';
@@ -67,6 +69,21 @@ export default function SimulationUI() {
             }`}>
               {status === 'idle' ? 'Inactivo' : status.toUpperCase()}
             </span>
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-white/50 text-[10px] uppercase tracking-widest">Velocidad</span>
+            <div className="flex bg-black/20 rounded-lg p-0.5 overflow-hidden border border-white/5">
+              {[1, 2, 4].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setSimSpeed(v)}
+                  className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${
+                    simSpeed === v ? 'bg-blue-600/60 text-white shadow-sm' : 'text-white/30 hover:text-white/60'
+                  }`}
+                >
+                  {v}x
+                </button>
+              ))}
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-2">
