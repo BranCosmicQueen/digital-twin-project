@@ -168,19 +168,51 @@ function PerimeterWalls() {
   const walls = [
     // Muro Oeste (X=0)
     { pos: [0, BODEGA_ELEVATION + WALL_HEIGHT / 2, centerZ], size: [0.1, WALL_HEIGHT, BODEGA_DEPTH] },
-    // Muro Este (X=60)
-    { pos: [BODEGA_WIDTH, BODEGA_ELEVATION + WALL_HEIGHT / 2, centerZ], size: [0.1, WALL_HEIGHT, BODEGA_DEPTH] },
+    
     // Muro Norte (Z=0)
     { pos: [centerX, BODEGA_ELEVATION + WALL_HEIGHT / 2, 0], size: [BODEGA_WIDTH, WALL_HEIGHT, 0.1] },
+    
     // Muro Sur (Z=50)
     { pos: [centerX, BODEGA_ELEVATION + WALL_HEIGHT / 2, BODEGA_DEPTH], size: [BODEGA_WIDTH, WALL_HEIGHT, 0.1] },
   ];
+
+  // ── Muro Este (X=60) con Huecos para Muelles ──
+  // Z-centers de muelles: 15, 19, 28, 32. Ancho = 3.5.
+  // Segmentos de muro: 
+  // 1. [0, 15-1.75] -> [0, 13.25]
+  // 2. [15+1.75, 19-1.75] -> [16.75, 17.25]
+  // 3. [19+1.75, 28-1.75] -> [20.75, 26.25]
+  // 4. [28+1.75, 32-1.75] -> [29.75, 30.25]
+  // 5. [32+1.75, 50] -> [33.75, 50]
+  const wallSegmentsZ = [
+    { start: 0, end: 13.25 },
+    { start: 16.75, end: 17.25 },
+    { start: 20.75, end: 26.25 },
+    { start: 29.75, end: 30.25 },
+    { start: 33.75, end: 50 },
+  ];
+
+  wallSegmentsZ.forEach(seg => {
+    const depth = seg.end - seg.start;
+    const cz = seg.start + depth / 2;
+    walls.push({
+      pos: [BODEGA_WIDTH, BODEGA_ELEVATION + WALL_HEIGHT / 2, cz],
+      size: [0.1, WALL_HEIGHT, depth]
+    });
+  });
 
   return (
     <group>
       {walls.map((w, i) => (
         <mesh key={`wall-${i}`} position={w.pos} material={wallMaterial}>
           <boxGeometry args={w.size} />
+        </mesh>
+      ))}
+      
+      {/* Lintels (Dintel) above the dock openings (from 4.5m up to 12m) */}
+      {[15, 19, 28, 32].map((dz, i) => (
+        <mesh key={`lintel-${i}`} position={[BODEGA_WIDTH, BODEGA_ELEVATION + 4.5 + 3.75, dz]} material={wallMaterial}>
+          <boxGeometry args={[0.1, 7.5, 3.5]} />
         </mesh>
       ))}
     </group>

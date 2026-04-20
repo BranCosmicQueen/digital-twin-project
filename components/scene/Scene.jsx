@@ -11,6 +11,7 @@ import Docks from './Docks';
 import Weighbridge from './Weighbridge';
 import RespelZone from './RespelZone';
 import Gates from './Gates';
+import Truck from './Truck';
 import { COLORS } from '@/lib/constants';
 
 // ══════════════════════════════════════════════════════════════════
@@ -68,6 +69,46 @@ export default function Scene() {
         <Weighbridge />
         <RespelZone />
         <Gates />
+
+        {/* Operational Vehicles (Camiones) */}
+        {/* Truck 1: Entering via North Portón */}
+        <Truck 
+          position={[110, 0, 5]} 
+          rotation={[0, -Math.PI / 2, 0]} 
+          color="#be123c" 
+        />
+        
+        {/* Truck 2: Docked at Muelle 2 */}
+        <Truck 
+          position={[68, 0, 19]} 
+          rotation={[0, Math.PI / 2, 0]} 
+          color="#1e293b" 
+        />
+
+        {/* Industrial Lighting Posts */}
+        {[70, 90, 105].map((x) => (
+          <group key={x}>
+            {/* North side lights */}
+            <mesh position={[x, 4, 1]}>
+              <cylinderGeometry args={[0.1, 0.1, 8]} />
+              <meshStandardMaterial color="#475569" />
+            </mesh>
+            <mesh position={[x, 8, 1.5]} rotation={[Math.PI / 2, 0, 0]}>
+              <boxGeometry args={[0.3, 0.3, 1]} />
+              <meshStandardMaterial color="#ffffff" emissive="#fef3c7" emissiveIntensity={1} />
+            </mesh>
+            
+            {/* South side lights */}
+            <mesh position={[x, 4, 49]}>
+              <cylinderGeometry args={[0.1, 0.1, 8]} />
+              <meshStandardMaterial color="#475569" />
+            </mesh>
+            <mesh position={[x, 8, 48.5]} rotation={[Math.PI / 2, 0, 0]}>
+              <boxGeometry args={[0.3, 0.3, 1]} />
+              <meshStandardMaterial color="#ffffff" emissive="#fef3c7" emissiveIntensity={1} />
+            </mesh>
+          </group>
+        ))}
       </Suspense>
     </Canvas>
   );

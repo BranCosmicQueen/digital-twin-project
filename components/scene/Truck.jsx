@@ -11,7 +11,7 @@ import {
   COLORS,
 } from '@/lib/constants';
 
-const Truck = forwardRef(function Truck({ visible = true, color }, ref) {
+const Truck = forwardRef(function Truck({ visible = true, color, ...props }, ref) {
   if (!visible) return null;
 
   const wheelW = 0.35;
@@ -19,7 +19,7 @@ const Truck = forwardRef(function Truck({ visible = true, color }, ref) {
   const trailerY = TRUCK_WHEEL_RADIUS + TRUCK_TRAILER_HEIGHT / 2;
 
   return (
-    <group ref={ref}>
+    <group ref={ref} {...props}>
       {/* ── Cab ── */}
       <group position={[0, 0, TRUCK_TRAILER_LENGTH / 2 + TRUCK_CAB_LENGTH / 2 + 0.5]}>
         <mesh position={[0, cabY, 0]} castShadow>
