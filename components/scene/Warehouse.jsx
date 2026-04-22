@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { Text } from '@react-three/drei';
 import {
   BODEGA_WIDTH,
   BODEGA_DEPTH,
@@ -114,10 +115,6 @@ function GhostCeiling() {
 
 
 
-// ══════════════════════════════════════════════════════════════════════════════
-// SUB: DS 43 Inflamables — Pretil (20cm berm at corner X=0, Z=0)
-// ══════════════════════════════════════════════════════════════════════════════
-
 function DS43FlammableZoneWalls() {
   const zone = DS43_ZONE;
   const width = zone.xMax - zone.xMin;
@@ -129,7 +126,7 @@ function DS43FlammableZoneWalls() {
 
   return (
     <group>
-      {/* Pretil / Berm — 4 walls of 20cm height (Floor markings moved to FloorMarkings.jsx) */}
+      {/* Pretil / Berm — 4 walls of 20cm height */}
       <mesh position={[cx, BODEGA_ELEVATION + pretilH / 2, zone.zMin]}>
         <boxGeometry args={[width + pretilThick, pretilH, pretilThick]} />
         <meshStandardMaterial color={zone.borderColor} roughness={0.5} />
@@ -146,6 +143,97 @@ function DS43FlammableZoneWalls() {
         <boxGeometry args={[pretilThick, pretilH, depth]} />
         <meshStandardMaterial color={zone.borderColor} roughness={0.5} />
       </mesh>
+    </group>
+  );
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SUB: Administración (North-East Office)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function AdministrationOffice() {
+  const width = 10; // X: 50 -> 60
+  const depth = 5;  // Z: 0 -> 5
+  const height = 3.5;
+  const cx = 50 + width / 2;
+  const cz = 0 + depth / 2;
+
+  return (
+    <group position={[cx, BODEGA_ELEVATION, cz]}>
+      {/* Office Box */}
+      <mesh position={[0, height / 2, 0]} castShadow>
+        <boxGeometry args={[width, height, depth]} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.4} metalness={0.1} />
+      </mesh>
+      {/* Windows (Facing South) */}
+      <mesh position={[0, height / 2, depth / 2 + 0.01]}>
+        <boxGeometry args={[width - 2, 1.2, 0.05]} />
+        <meshStandardMaterial color="#38bdf8" transparent opacity={0.6} metalness={0.9} roughness={0.1} />
+      </mesh>
+      {/* Label */}
+      <group position={[0, height - 0.5, depth / 2 + 0.06]}>
+        <mesh>
+          <boxGeometry args={[4, 0.6, 0.02]} />
+          <meshStandardMaterial color="#1e293b" />
+        </mesh>
+        <Text
+          position={[0, 0, 0.02]}
+          fontSize={0.35}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+        >
+          ADMINISTRACIÓN
+        </Text>
+      </group>
+    </group>
+  );
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SUB: Lavaojos de Emergencia (DS 43 / DS 594)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function EmergencyEyewash() {
+  const x = 22; // Near DS43 corner
+  const z = 1.5;
+  const y = BODEGA_ELEVATION;
+
+  return (
+    <group position={[x, y, z]}>
+      {/* Pedestal */}
+      <mesh position={[0, 0.5, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 1, 8]} />
+        <meshStandardMaterial color="#94a3b8" metalness={0.8} />
+      </mesh>
+      {/* Basin (Green) */}
+      <mesh position={[0, 1.0, 0]}>
+        <cylinderGeometry args={[0.25, 0.2, 0.15, 16]} />
+        <meshStandardMaterial color="#22c55e" roughness={0.3} />
+      </mesh>
+      {/* Nozzles */}
+      <mesh position={[0, 1.1, 0]}>
+        <boxGeometry args={[0.3, 0.05, 0.05]} />
+        <meshStandardMaterial color="#cbd5e1" metalness={0.9} />
+      </mesh>
+      {/* Safety Sign (Green Diamond/Square) */}
+      <group position={[0, 1.8, 0.06]}>
+        <mesh>
+          <boxGeometry args={[0.5, 0.5, 0.01]} />
+          <meshStandardMaterial color="#166534" emissive="#166534" emissiveIntensity={0.5} />
+        </mesh>
+        <Text
+          position={[0, 0, 0.01]}
+          fontSize={0.08}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+        >
+          LAVAOJOS
+        </Text>
+      </group>
     </group>
   );
 }
@@ -187,6 +275,10 @@ export default function Warehouse() {
 
       {/* DS43 Walls */}
       <DS43FlammableZoneWalls />
+
+      {/* Administration & Safety */}
+      <AdministrationOffice />
+      <EmergencyEyewash />
     </group>
   );
 }

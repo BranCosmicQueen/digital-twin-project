@@ -170,11 +170,13 @@ function DS43FloorLines() {
 
 function GeneralTexts() {
   const labels = [
-    { text: 'CALLE ADELA', position: [GATE_X + CALLE_ADELA_WIDTH / 2, 0.2, 25], fontSize: 2, color: '#ffffff', opacity: 0.5, rotationZ: Math.PI / 2 },
+    { text: 'STA. ADELA', position: [GATE_X + CALLE_ADELA_WIDTH / 2, 0.2, 25], fontSize: 2, color: '#ffffff', opacity: 0.5, rotationZ: Math.PI / 2 },
     { text: 'PORTÓN ACCESO', position: [102, 0.05, GATE_MAIN_Z], fontSize: 1, color: COLORS.gateEntry, opacity: 1 },
     { text: '← 60m (BODEGA) →', position: [30, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
-    { text: '← 40m (PATIO) →', position: [80, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
     { text: '← 100m (BASE TOTAL) →', position: [50, ZONE_Y + 0.02, -6], fontSize: 1.5, color: '#1f2937', opacity: 0.9 },
+    // Carriles Inbound/Outbound en el patio (Frente a los muelles)
+    { text: 'INBOUND', position: [65, 0.02, 30], fontSize: 1.2, color: COLORS.accentInbound, opacity: 0.8 },
+    { text: 'OUTBOUND', position: [65, 0.02, 20], fontSize: 1.2, color: COLORS.accentOutbound, opacity: 0.8 },
 
   ];
 

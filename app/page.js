@@ -73,11 +73,11 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-sm bg-blue-300" />
-              <span>Staging Inbound</span>
+              <span>Zona Recepción</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-sm bg-green-300" />
-              <span>Staging Outbound</span>
+              <span>Zona Despacho</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-sm bg-sky-300" />

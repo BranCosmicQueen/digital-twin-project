@@ -105,27 +105,6 @@ export default function Scene() {
         <SimulationTruck />
         <SimulationWorker />
         
-        {/* I'll leave the lighting posts logic as it was if it was there */}
-        {[70, 90, 105].map((x) => (
-          <group key={x}>
-            <mesh position={[x, 4, 1]}>
-              <cylinderGeometry args={[0.1, 0.1, 8]} />
-              <meshStandardMaterial color="#475569" />
-            </mesh>
-            <mesh position={[x, 8, 1.5]} rotation={[Math.PI / 2, 0, 0]}>
-              <boxGeometry args={[0.3, 0.3, 1]} />
-              <meshStandardMaterial color="#ffffff" emissive="#fef3c7" emissiveIntensity={1} />
-            </mesh>
-            <mesh position={[x, 4, 49]}>
-              <cylinderGeometry args={[0.1, 0.1, 8]} />
-              <meshStandardMaterial color="#475569" />
-            </mesh>
-            <mesh position={[x, 8, 48.5]} rotation={[Math.PI / 2, 0, 0]}>
-              <boxGeometry args={[0.3, 0.3, 1]} />
-              <meshStandardMaterial color="#ffffff" emissive="#fef3c7" emissiveIntensity={1} />
-            </mesh>
-          </group>
-        ))}
       </Suspense>
     </Canvas>
   );

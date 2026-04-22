@@ -14,31 +14,6 @@ import {
 } from '@/lib/constants';
 import { useSimulationStore } from '@/lib/store';
 
-function TrafficLight({ position, active, color = '#ef4444' }) {
-  return (
-    <group position={position}>
-      {/* Post */}
-      <mesh position={[0, 1.5, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 3, 8]} />
-        <meshStandardMaterial color="#333" />
-      </mesh>
-      {/* Box */}
-      <mesh position={[0, 3, 0]}>
-        <boxGeometry args={[0.3, 0.8, 0.3]} />
-        <meshStandardMaterial color="#222" />
-      </mesh>
-      {/* Light */}
-      <mesh position={[0, 3.1, 0.16]}>
-        <sphereGeometry args={[0.1, 16, 16]} />
-        <meshStandardMaterial 
-          color={active ? color : '#111'} 
-          emissive={active ? color : '#000'} 
-          emissiveIntensity={active ? 2 : 0} 
-        />
-      </mesh>
-    </group>
-  );
-}
 
 function LaserSensor({ position, length, horizontal = true, active = false }) {
   return (
@@ -77,31 +52,6 @@ export default function BoundarySensors() {
 
   return (
     <group>
-      {/* Gate Entry Traffic Light */}
-      <TrafficLight 
-        position={[GATE_WAIT_X - 2, 0, GATE_MAIN_Z + 6]} 
-        active={!gateEntryOpen} 
-        color="#ef4444" // Red if closed
-      />
-      <TrafficLight 
-        position={[GATE_WAIT_X - 2, 0, GATE_MAIN_Z + 6.1]} 
-        active={gateEntryOpen} 
-        color="#22c55e" // Green if open
-      />
-
-      {/* Stop Line at Gate */}
-      <mesh position={[GATE_WAIT_X, 0.02, GATE_MAIN_Z]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.5, 10]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.6} />
-      </mesh>
-      <Text
-        position={[GATE_WAIT_X, 0.1, GATE_MAIN_Z + 6]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        fontSize={0.5}
-        color="#ffffff"
-      >
-        STOP / ESPERE PORTÓN
-      </Text>
 
       {/* Laser Sensors at Romana (Recognition limits - North/South Ends) */}
       <LaserSensor 
