@@ -37,7 +37,7 @@ function SimulationWorker() {
 
 // Helpers to connect Store with Scene
 function SimulationTruck() {
-  const { truckVisible, truckPosition, truckRotation, truckColor, truckStatus } = useSimulationStore();
+  const { truckVisible, truckPosition, truckRotation, truckColor, truckStatus, truckSteeringAngle } = useSimulationStore();
   if (!truckVisible) return null;
   return (
     <Truck 
@@ -45,6 +45,7 @@ function SimulationTruck() {
       rotation={truckRotation} 
       color={truckColor} 
       status={truckStatus}
+      steeringAngle={truckSteeringAngle}
     />
   );
 }

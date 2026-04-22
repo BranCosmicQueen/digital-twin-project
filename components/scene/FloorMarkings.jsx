@@ -33,7 +33,7 @@ import {
   ROMANA_Z,
   ROMANA_WIDTH,
   ROMANA_DEPTH,
-  COLORS,
+} from '@/lib/constants';
 
 
 // Z-Centers from Warehouse for Aisle mapping

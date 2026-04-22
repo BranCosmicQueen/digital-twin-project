@@ -70,7 +70,10 @@ export default function BoundarySensors() {
   
   // Logic to "detect" truck at gate
   const truckAtGate = truckPosition[0] < GATE_WAIT_X + 2 && truckPosition[0] > GATE_WAIT_X - 5;
-  const truckAtRomana = Math.abs(truckPosition[0] - ROMANA_X) < 2;
+  const truckAtRomana = 
+    Math.abs(truckPosition[0] - ROMANA_X) < 2 &&
+    truckPosition[2] > ROMANA_Z - ROMANA_DEPTH / 2 - 2 &&
+    truckPosition[2] < ROMANA_Z + ROMANA_DEPTH / 2 + 2;
 
   return (
     <group>
@@ -100,17 +103,17 @@ export default function BoundarySensors() {
         STOP / ESPERE PORTÓN
       </Text>
 
-      {/* Laser Sensors at Romana (Recognition limits) */}
+      {/* Laser Sensors at Romana (Recognition limits - North/South Ends) */}
       <LaserSensor 
-        position={[ROMANA_X - ROMANA_WIDTH / 2, 0, ROMANA_Z]} 
-        length={ROMANA_DEPTH + 1} 
-        horizontal={false} 
+        position={[ROMANA_X, 0, ROMANA_Z - ROMANA_DEPTH / 2]} 
+        length={ROMANA_WIDTH + 1} 
+        horizontal={true} 
         active={truckAtRomana}
       />
       <LaserSensor 
-        position={[ROMANA_X + ROMANA_WIDTH / 2, 0, ROMANA_Z]} 
-        length={ROMANA_DEPTH + 1} 
-        horizontal={false} 
+        position={[ROMANA_X, 0, ROMANA_Z + ROMANA_DEPTH / 2]} 
+        length={ROMANA_WIDTH + 1} 
+        horizontal={true} 
         active={truckAtRomana}
       />
 

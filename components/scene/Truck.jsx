@@ -11,7 +11,7 @@ import {
   COLORS,
 } from '@/lib/constants';
 
-const Truck = forwardRef(function Truck({ visible = true, color, status = 'idle', ...props }, ref) {
+const Truck = forwardRef(function Truck({ visible = true, color, status = 'idle', steeringAngle = 0, ...props }, ref) {
   if (!visible) return null;
 
   const wheelW = 0.35;
@@ -66,17 +66,18 @@ const Truck = forwardRef(function Truck({ visible = true, color, status = 'idle'
           <meshStandardMaterial color="#1f2937" roughness={0.9} />
         </mesh>
 
-        {/* Cab wheels */}
+        {/* Cab wheels (Steering) */}
         {[-1, 1].map((side) => (
-          <mesh
-            key={`cw-${side}`}
+          <group 
+            key={`cw-${side}`} 
             position={[side * (TRUCK_WIDTH / 2 + wheelW / 4), TRUCK_WHEEL_RADIUS, 0.8]}
-            rotation={[0, 0, Math.PI / 2]}
-            castShadow
+            rotation={[0, steeringAngle, 0]}
           >
-            <cylinderGeometry args={[TRUCK_WHEEL_RADIUS, TRUCK_WHEEL_RADIUS, wheelW, 16]} />
-            <meshStandardMaterial color="#111" roughness={0.9} />
-          </mesh>
+            <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
+              <cylinderGeometry args={[TRUCK_WHEEL_RADIUS, TRUCK_WHEEL_RADIUS, wheelW, 16]} />
+              <meshStandardMaterial color="#111" roughness={0.9} />
+            </mesh>
+          </group>
         ))}
       </group>
 

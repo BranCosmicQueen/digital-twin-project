@@ -45,7 +45,7 @@ export default function SimulationManager() {
 
   const runFullSequence = () => {
     // ══════════════════════════════════════════════════════════════════════════════
-    // FLUJO COMPLETO: Entrada (Vacío) -> Carga (Worker) -> Salida (Pesado)
+    // FLUJO FÍSICO ESTRICTO: Inbound por calle Z, Romana en Sur y Escape Reversa
     // ══════════════════════════════════════════════════════════════════════════════
     
     setTruckVisible(true);
@@ -59,83 +59,96 @@ export default function SimulationManager() {
     });
     tlRef.current = tl;
 
-    // ── 1. ENTRADA (VACÍO - NO SE PESA) ──
-    tl.set({}, { onStart: () => setTruckTransform([130, 0, 25], [0, -Math.PI / 2, 0], 'driving') });
+    // ── 1. ENTRADA (INBOUND CALLE ADELA) ──
+    // Aparece en el Norte de Calle Adela, orientado al Sur
+    tl.set({}, { onStart: () => setTruckTransform([108, 0, -10], [0, 0, 0], 'driving', 0) });
 
-    // Llegada a Portón
+    // Avanza por la calle hasta antes del portón
     tl.to({}, {
       duration: 2,
       onUpdate: function() {
         const p = this.progress();
-        const x = 130 - p * 22; // 130 -> 108
-        setTruckTransform([x, 0, 25], [0, -Math.PI / 2, 0], 'driving');
+        const z = -10 + p * 25; // -10 -> 15
+        setTruckTransform([108, 0, z], [0, 0, 0], 'driving', 0);
       }
     });
 
-    // Reconocimiento y Apertura
+    // Maniobra vertical-diagonal para ingresar por el portón (Radio de giro cerrado)
+    tl.to({}, {
+      duration: 2,
+      onUpdate: function() {
+        const p = this.progress();
+        const x = 108 - p * 8; // 108 -> 100
+        const z = 15 + p * 10; // 15 -> 25
+        
+        // Gira de Sur (0) a Oeste (-Math.PI/2) doblando a la derecha
+        const angle = -p * (Math.PI / 2);
+        const steering = Math.sin(p * Math.PI) * 0.6; // Volante a la derecha
+        setTruckTransform([x, 0, z], [0, angle, 0], 'driving', steering);
+      }
+    });
+
+    // Espera apertura de portón
     tl.to({}, { 
       duration: 1.5, 
       onStart: () => setTruckStatus('parked'),
       onComplete: () => setGateEntryOpen(true) 
     });
 
-    // Ingreso Directo al Mutex (SALTANDO ROMANA)
+    // Ingreso hacia el Mutex
     tl.to({}, {
       duration: 2.5,
       onStart: () => setTruckStatus('driving'),
       onUpdate: function() {
         const p = this.progress();
-        const x = 108 - p * 30; // 108 -> 78
-        setTruckTransform([x, 0, 25], [0, -Math.PI / 2, 0], 'driving');
+        const x = 100 - p * 22; // 100 -> 78
+        setTruckTransform([x, 0, 25], [0, -Math.PI / 2, 0], 'driving', 0);
       }
     });
 
-    // Giro en Mutex
+    // Giro 180° en Mutex (U-Turn hacia la izquierda)
     tl.to({}, {
       duration: 3,
       onUpdate: function() {
         const p = this.progress();
-        const angle = -Math.PI / 2 + p * Math.PI; 
+        const angle = -Math.PI / 2 + p * Math.PI; // -90 -> 90 (Este)
         const x = 78 - Math.sin(p * Math.PI) * 4; 
-        setTruckTransform([x, 0, 25], [0, angle, 0], 'driving');
+        const steering = -Math.sin(p * Math.PI) * 0.6; // Volante izquierda
+        setTruckTransform([x, 0, 25], [0, angle, 0], 'driving', steering);
       }
     });
 
-    // Posicionamiento en Outbound (Muelle Carga Z=20)
+    // Reversa hacia el muelle de carga
     tl.to({}, {
       duration: 3,
       onUpdate: function() {
         const p = this.progress();
-        const x = 78 - p * 16; // 78 -> 62
+        const x = 78 - p * 11; // 78 -> 67 (Evita cruzar la línea azul en X=60)
         const z = 25 - p * 5;  // 25 -> 20
-        setTruckTransform([x, 0, z], [0, Math.PI / 2, 0], 'reversing');
+        const steering = -Math.sin(p * Math.PI) * 0.3; // Corrección sutil
+        setTruckTransform([x, 0, z], [0, Math.PI / 2, 0], 'reversing', steering);
       }
     });
 
-    // ── 2. PROCESO DE CARGA (WORKER DESDE ZONA A) ──
+    // ── 2. PROCESO DE CARGA ──
     tl.to({}, { 
       duration: 1, 
       onStart: () => {
         setTruckStatus('loading');
         setWorkerVisible(true);
-        setWorkerTransform([45, 1.2, 20]); // En Zona A
+        setWorkerTransform([45, 1.2, 20]);
       }
     });
 
-    // Worker va al camión
-    tl.to({}, {
-      duration: 2,
-      onUpdate: function() {
+    tl.to({}, { duration: 2, onUpdate: function() {
         const p = this.progress();
-        const x = 45 + p * 12; // 45 -> 57 (Cerca del muelle)
+        const x = 45 + p * 12; 
         setWorkerTransform([x, 1.2, 20]);
       }
     });
 
-    // Simulación de carga (Espera)
-    tl.to({}, { duration: 2 });
+    tl.to({}, { duration: 2 }); // Loading
 
-    // Worker vuelve a Zona A
     tl.to({}, {
       duration: 2,
       onUpdate: function() {
@@ -146,30 +159,44 @@ export default function SimulationManager() {
       onComplete: () => setWorkerVisible(false)
     });
 
-    // ── 3. SALIDA (CARGADO - DEBE PESARSE) ──
+    // ── 3. SALIDA (ROMANA EN Z Y ESCAPE REVERSA) ──
+    // Salir del muelle en línea recta
     tl.to({}, {
-      duration: 2,
+      duration: 1.5,
       onStart: () => setTruckStatus('driving'),
       onUpdate: function() {
         const p = this.progress();
-        const x = 62 + p * 16; // 62 -> 78
-        const z = 20 + p * 5;  // 20 -> 25
-        setTruckTransform([x, 0, z], [0, 0, 0], 'driving');
+        const x = 67 + p * 13; // 67 -> 80
+        setTruckTransform([x, 0, 20], [0, Math.PI / 2, 0], 'driving', 0);
       }
     });
 
-    // Hacia la Romana
+    // Curva Sur-Este para ingresar a Romana (Giro Derecha)
+    tl.to({}, {
+      duration: 2.5,
+      onUpdate: function() {
+        const p = this.progress();
+        const x = 80 + p * 16; // 80 -> 96
+        const z = 20 + p * 10; // 20 -> 30 (Alineándose a la Romana)
+        
+        // De Este (Math.PI/2) a Sur (0)
+        const angle = Math.PI / 2 - p * (Math.PI / 2);
+        const steering = Math.sin(p * Math.PI) * 0.6; // Volante derecha
+        setTruckTransform([x, 0, z], [0, angle, 0], 'driving', steering);
+      }
+    });
+
+    // Ingreso recto a la Romana (Hacia el Sur)
     tl.to({}, {
       duration: 2,
       onUpdate: function() {
         const p = this.progress();
-        const x = 78 + p * 2;
-        const z = 25 - p * 19;
-        setTruckTransform([x, 0, z], [0, 0, 0], 'driving');
+        const z = 30 + p * 8; // 30 -> 38 (Evita que la cabina sobresalga del límite 49)
+        setTruckTransform([96, 0, z], [0, 0, 0], 'driving', 0);
       }
     });
 
-    // Detención en Romana para Pesaje (Obligatorio por estar cargado)
+    // Detención en Romana para pesaje (Restringido por muro en Z=50)
     tl.to({}, { 
       duration: 3, 
       onStart: () => setTruckStatus('parked'),
@@ -179,14 +206,43 @@ export default function SimulationManager() {
       }
     });
 
-    // Salida por Calle Adela
+    // Maniobra de Escape en Reversa (Pivote hacia Noroeste)
     tl.to({}, {
-      duration: 3,
+      duration: 3.5,
       onUpdate: function() {
         const p = this.progress();
-        const x = 80 + p * 50; 
-        const z = 6 + p * 19; 
-        setTruckTransform([x, 0, z], [0, Math.PI / 2, 0], 'driving');
+        const x = 96 - p * 16; // 96 -> 80
+        const z = 38 - p * 13; // 38 -> 25
+        
+        // Gira de Sur (0) a Este (Math.PI/2) en reversa. Volante izquierda para botar cola al Oeste.
+        const angle = p * (Math.PI / 2); 
+        const steering = -Math.sin(p * Math.PI) * 0.8; // Volante a tope izquierda
+        setTruckTransform([x, 0, z], [0, angle, 0], 'reversing', steering);
+      }
+    });
+
+    // Avance recto por el Portón hacia la calle
+    tl.to({}, {
+      duration: 2.5,
+      onStart: () => setTruckStatus('driving'),
+      onUpdate: function() {
+        const p = this.progress();
+        const x = 80 + p * 28; // 80 -> 108
+        setTruckTransform([x, 0, 25], [0, Math.PI / 2, 0], 'driving', 0);
+      }
+    });
+
+    // Doblar al Sur por Calle Adela (Salida contraria a la entrada)
+    tl.to({}, {
+      duration: 2,
+      onUpdate: function() {
+        const p = this.progress();
+        const z = 25 + p * 35; // 25 -> 60 (Hacia el Sur)
+        
+        // De Este (Math.PI/2) a Sur (0) doblando a la derecha
+        const angle = Math.PI / 2 - p * (Math.PI / 2);
+        const steering = Math.sin(p * Math.PI) * 0.5; // Derecha
+        setTruckTransform([108, 0, z], [0, angle, 0], 'driving', steering);
       }
     });
 
@@ -195,7 +251,6 @@ export default function SimulationManager() {
       setTruckVisible(false);
     }});
   };
-
   const runInboundSequence = () => { /* legacy fallback */ };
   const runOutboundSequence = () => { /* legacy fallback */ };
 

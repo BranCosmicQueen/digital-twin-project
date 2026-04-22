@@ -19,8 +19,8 @@ export default function Weighbridge() {
 
       {/* Surface plates (segmented to show scale: 6 segments of 3m each = 18m) */}
       {Array.from({ length: 6 }).map((_, i) => (
-        <mesh key={`plate-${i}`} position={[-(ROMANA_WIDTH / 2) + 1.5 + i * 3, 0.17, 0]}>
-          <boxGeometry args={[2.9, 0.02, ROMANA_DEPTH - 0.2]} />
+        <mesh key={`plate-${i}`} position={[0, 0.17, -(ROMANA_DEPTH / 2) + 1.5 + i * 3]}>
+          <boxGeometry args={[ROMANA_WIDTH - 0.2, 0.02, 2.9]} />
           <meshStandardMaterial color="#78909c" metalness={0.9} roughness={0.2} />
         </mesh>
       ))}
@@ -34,13 +34,13 @@ export default function Weighbridge() {
       ))}
 
       {/* Control cabin */}
-      <mesh position={[-ROMANA_WIDTH / 2 - 1.5, 1, 0]} castShadow>
-        <boxGeometry args={[2, 2, 2.5]} />
+      <mesh position={[ROMANA_WIDTH / 2 + 1.5, 1, 0]} castShadow>
+        <boxGeometry args={[2.5, 2, 2]} />
         <meshStandardMaterial color="#37474f" roughness={0.5} />
       </mesh>
       {/* Cabin window */}
-      <mesh position={[-ROMANA_WIDTH / 2 - 0.49, 1.2, 0]}>
-        <boxGeometry args={[0.05, 0.8, 1.5]} />
+      <mesh position={[ROMANA_WIDTH / 2 + 0.25, 1.2, 0]}>
+        <boxGeometry args={[0.5, 0.8, 1.5]} />
         <meshStandardMaterial color="#1e3a5f" metalness={0.9} roughness={0.1} />
       </mesh>
     </group>
