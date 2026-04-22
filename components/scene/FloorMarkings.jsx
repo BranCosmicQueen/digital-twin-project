@@ -173,7 +173,7 @@ function GeneralTexts() {
     { text: '← 60m (BODEGA) →', position: [30, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
     { text: '← 40m (PATIO) →', position: [80, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
     { text: '← 100m (BASE TOTAL) →', position: [50, ZONE_Y + 0.02, -6], fontSize: 1.5, color: '#1f2937', opacity: 0.9 },
-    { text: 'CARGA BATERÍAS', position: [5, ZONE_Y + 0.02, 46], rotation: [-Math.PI / 2, 0, 0], fontSize: 0.8, color: '#92400E', fillOpacity: 0.7 },
+
   ];
 
   return (

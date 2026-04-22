@@ -331,17 +331,16 @@ export default function RacksLayout() {
     
     // Grid de pallets en el piso dentro de la jaula DS43
     // La jaula DS43 ahora mide 20m de ancho x 10m de fondo (X: 0 a 20, Z: 0 a 10)
-    const ds43Z = [];
-    for(let z = 1.0; z <= 9.0; z += 1.35) ds43Z.push(z);
+    // Solo una fila a lo largo del muro (eje X)
+    const ds43Z = [1.5];
     
     // Columnas adaptadas a los 20m
     const ds43X = [];
     for (let x = 1; x <= 19; x += 1.5) ds43X.push(x); 
 
-    // Niveles de apilado (2 niveles para mayor eficiencia)
+    // Niveles de apilado (1 nivel por seguridad y visibilidad)
     const ds43Levels = [
       BODEGA_ELEVATION + PALLET_H / 2, // Nivel 1 (Suelo)
-      BODEGA_ELEVATION + PALLET_H + 0.9 + PALLET_H / 2 // Nivel 2 (Sobre tambores de 0.9m)
     ];
 
     ds43Z.forEach(cz => {
