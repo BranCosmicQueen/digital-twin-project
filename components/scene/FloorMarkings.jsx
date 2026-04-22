@@ -31,8 +31,10 @@ import {
   DOCK_DESCARGA_Z,
   ROMANA_X,
   ROMANA_Z,
-  ROMANA_DEPTH
-} from '@/lib/constants';
+  ROMANA_WIDTH,
+  ROMANA_DEPTH,
+  COLORS,
+
 
 // Z-Centers from Warehouse for Aisle mapping
 const AISLE_Z_CENTERS = [16.2, 23.8, 31.4];
@@ -324,6 +326,44 @@ function PullZones() {
   );
 }
 
+function RomanaMarkings() {
+  const cx = ROMANA_X;
+  const cz = ROMANA_Z;
+  const halfW = ROMANA_WIDTH / 2;
+  const halfD = ROMANA_DEPTH / 2;
+
+  return (
+    <group>
+      {/* Perimeter safety lines around the weighbridge */}
+      <Line
+        points={[
+          [cx - halfW - 0.5, 0.02, cz - halfD - 0.5],
+          [cx + halfW + 0.5, 0.02, cz - halfD - 0.5],
+          [cx + halfW + 0.5, 0.02, cz + halfD + 0.5],
+          [cx - halfW - 0.5, 0.02, cz + halfD + 0.5],
+          [cx - halfW - 0.5, 0.02, cz - halfD - 0.5],
+        ]}
+        color="#f59e0b"
+        lineWidth={1.5}
+        transparent
+        opacity={0.4}
+      />
+      {/* Dimension Label */}
+      <Text
+        position={[cx, 0.05, cz + halfD + 1.5]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        fontSize={0.8}
+        color="#f59e0b"
+        anchorX="center"
+        anchorY="middle"
+        fillOpacity={0.6}
+      >
+        ROMANA PESANE [ 18.0m ]
+      </Text>
+    </group>
+  );
+}
+
 export default function FloorMarkings() {
   return (
     <group>
@@ -336,6 +376,9 @@ export default function FloorMarkings() {
       
       {/* Sacred Turning Circle restored per requirement */}
       <SacredCircle />
+
+      {/* Weighbridge Markings */}
+      <RomanaMarkings />
     </group>
   );
 }

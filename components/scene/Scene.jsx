@@ -14,6 +14,8 @@ import RespelZone from './RespelZone';
 import Gates from './Gates';
 import Truck from './Truck';
 import FloorMarkings from './FloorMarkings';
+import BoundarySensors from './BoundarySensors';
+import Worker from './Worker';
 import SimulationManager from './SimulationManager';
 import { useSimulationStore } from '@/lib/store';
 import { COLORS, BODEGA_ELEVATION } from '@/lib/constants';
@@ -25,6 +27,12 @@ function SceneBackground() {
     scene.background = new THREE.Color(COLORS.background);
   }, [scene]);
   return null;
+}
+
+function SimulationWorker() {
+  const { workerVisible, workerPosition } = useSimulationStore();
+  if (!workerVisible) return null;
+  return <Worker position={workerPosition} />;
 }
 
 // Helpers to connect Store with Scene
@@ -92,7 +100,9 @@ export default function Scene() {
         <Weighbridge />
         <RespelZone />
         <GatesContainer />
+        <BoundarySensors />
         <SimulationTruck />
+        <SimulationWorker />
         
         {/* I'll leave the lighting posts logic as it was if it was there */}
         {[70, 90, 105].map((x) => (
