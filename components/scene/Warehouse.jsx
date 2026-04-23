@@ -186,24 +186,106 @@ function BatteryWall() {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function AdministrationOffice() {
-  const width = 10; // X: 50 -> 60
-  const depth = 5;  // Z: 0 -> 5
+  const width = 10;
+  const depth = 5;
   const height = 3.5;
   const cx = 50 + width / 2;
   const cz = 0 + depth / 2;
 
   return (
     <group position={[cx, BODEGA_ELEVATION, cz]}>
-      {/* Office Box */}
-      <mesh position={[0, height / 2, 0]} castShadow>
-        <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial color="#f8fafc" roughness={0.4} metalness={0.1} />
+      {/* 1. Glass Structure (Open look) */}
+      {/* Floor */}
+      <mesh position={[0, 0.01, 0]}>
+        <boxGeometry args={[width, 0.02, depth]} />
+        <meshStandardMaterial color="#e2e8f0" />
       </mesh>
-      {/* Windows (Facing South) */}
-      <mesh position={[0, height / 2, depth / 2 + 0.01]}>
-        <boxGeometry args={[width - 2, 1.2, 0.05]} />
-        <meshStandardMaterial color="#38bdf8" transparent opacity={0.6} metalness={0.9} roughness={0.1} />
+      {/* Glass Walls (South/West) */}
+      <mesh position={[0, height / 2, depth / 2]}>
+        <boxGeometry args={[width, height, 0.05]} />
+        <meshStandardMaterial color="#bae6fd" transparent opacity={0.2} metalness={0.5} roughness={0.1} />
       </mesh>
+      <mesh position={[-width / 2, height / 2, 0]}>
+        <boxGeometry args={[0.05, height, depth]} />
+        <meshStandardMaterial color="#bae6fd" transparent opacity={0.2} metalness={0.5} roughness={0.1} />
+      </mesh>
+      {/* Frame (Structural posts) */}
+      {[[-5, 2.5], [5, 2.5], [-5, -2.5], [5, -2.5]].map((p, i) => (
+        <mesh key={i} position={[p[0], height / 2, p[1]]}>
+          <boxGeometry args={[0.2, height, 0.2]} />
+          <meshStandardMaterial color="#334155" />
+        </mesh>
+      ))}
+
+      {/* 2. Furniture: Desks & Workstations */}
+      {[
+        { x: -3.5, z: -1.5 },
+        { x: -1, z: -1.5 },
+        { x: 1.5, z: -1.5 },
+      ].map((d, i) => (
+        <group key={`desk-${i}`} position={[d.x, 0, d.z]}>
+          {/* Tabletop */}
+          <mesh position={[0, 0.75, 0]}>
+            <boxGeometry args={[1.5, 0.05, 0.8]} />
+            <meshStandardMaterial color="#ffffff" />
+          </mesh>
+          {/* Monitor */}
+          <mesh position={[0, 1.1, -0.2]}>
+            <boxGeometry args={[0.6, 0.4, 0.02]} />
+            <meshStandardMaterial color="#1e293b" />
+          </mesh>
+          {/* Chair (Simple) */}
+          <mesh position={[0, 0.4, 0.6]}>
+            <cylinderGeometry args={[0.25, 0.25, 0.8, 8]} />
+            <meshStandardMaterial color="#475569" />
+          </mesh>
+        </group>
+      ))}
+
+      {/* 3. Logistics-Specific Gear */}
+      {/* Printer Table (Labels) */}
+      <group position={[4, 0, -1.5]}>
+        <mesh position={[0, 0.75, 0]}>
+          <boxGeometry args={[1, 0.05, 1]} />
+          <meshStandardMaterial color="#cbd5e1" />
+        </mesh>
+        <mesh position={[0, 0.9, 0]}>
+          <boxGeometry args={[0.4, 0.3, 0.4]} />
+          <meshStandardMaterial color="#334155" />
+        </mesh>
+      </group>
+
+      {/* Safety Vest Rack (Chalecos reflectantes) */}
+      <group position={[-4, 0, 1.8]}>
+        <mesh position={[0, 1, 0]}>
+          <boxGeometry args={[0.05, 2, 2.5]} />
+          <meshStandardMaterial color="#334155" />
+        </mesh>
+        {/* Vests (represented as bright neon blocks) */}
+        {[ -0.8, -0.4, 0, 0.4, 0.8 ].map((z, i) => (
+          <mesh key={`vest-${i}`} position={[0.05, 1.2, z]}>
+            <boxGeometry args={[0.05, 0.8, 0.3]} />
+            <meshStandardMaterial color={i % 2 === 0 ? '#fbbf24' : '#ea580c'} emissive={i % 2 === 0 ? '#fbbf24' : '#ea580c'} emissiveIntensity={0.3} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Radio Charging Station */}
+      <group position={[4, 0, 1.5]}>
+        <mesh position={[0, 0.75, 0]}>
+          <boxGeometry args={[0.8, 0.05, 0.8]} />
+          <meshStandardMaterial color="#cbd5e1" />
+        </mesh>
+        {[ -0.2, 0.2 ].map((x, i) => (
+          [ -0.2, 0.2 ].map((z, j) => (
+            <mesh key={`radio-${i}-${j}`} position={[x, 0.9, z]}>
+              <boxGeometry args={[0.1, 0.2, 0.1]} />
+              <meshStandardMaterial color="#1e293b" />
+            </mesh>
+          ))
+        ))}
+      </group>
+      
       {/* Label */}
       <group position={[0, height - 0.5, depth / 2 + 0.06]}>
         <mesh>
