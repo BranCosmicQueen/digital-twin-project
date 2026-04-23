@@ -93,14 +93,13 @@ export default function Terrain() {
         <meshStandardMaterial color={COLORS.terrain} roughness={0.9} />
       </mesh>
 
-      {/* ── Patio surface (X=60..100) ── */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[PATIO_X_START + PATIO_WIDTH / 2, 0.005, TERRAIN_DEPTH / 2]}
         receiveShadow
       >
         <planeGeometry args={[PATIO_WIDTH, TERRAIN_DEPTH]} />
-        <meshStandardMaterial color={COLORS.patioSurface} roughness={0.85} />
+        <meshStandardMaterial color="#cbd5e1" roughness={0.6} metalness={0.1} />
       </mesh>
 
       {/* ── Calle Adela surface (X=100..115) ── */}
@@ -147,10 +146,16 @@ export default function Terrain() {
         <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={0.2} />
       </mesh>
 
-      {/* ── Body/Patio divider line at X=60 ── */}
+      {/* ── Body/Patio divider line at X=60 (API Canaleta) ── */}
       <mesh position={[PATIO_X_START, 0.03, TERRAIN_DEPTH / 2]}>
-        <boxGeometry args={[0.08, 0.06, TERRAIN_DEPTH]} />
-        <meshStandardMaterial color="#4a90d9" emissive="#4a90d9" emissiveIntensity={0.3} transparent opacity={0.5} />
+        <boxGeometry args={[0.2, 0.06, TERRAIN_DEPTH]} />
+        <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={0.3} />
+      </mesh>
+
+      {/* CÁMARA SEPARADORA API */}
+      <mesh position={[95, 0.1, 45]}>
+        <boxGeometry args={[2, 0.2, 2]} />
+        <meshStandardMaterial color="#475569" />
       </mesh>
 
       {/* ── Turning radius circle restored per requirement ── */}

@@ -14,6 +14,7 @@ import {
 import RacksLayout from './RacksLayout';
 import StagingLayout from './StagingLayout';
 import BatteryLayout from './BatteryLayout';
+import EmergencySystems from './EmergencySystems';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // BODEGA ESMAX — Layout Paramétrico (Flujo en "U")
@@ -117,33 +118,65 @@ function GhostCeiling() {
 
 function DS43FlammableZoneWalls() {
   const zone = DS43_ZONE;
-  const width = zone.xMax - zone.xMin;
-  const depth = zone.zMax - zone.zMin;
-  const cx = zone.xMin + width / 2;
-  const cz = zone.zMin + depth / 2;
-  const pretilH = zone.pretilHeight;
-  const pretilThick = 0.15;
+  const h = 3.0; 
 
   return (
     <group>
-      {/* Pretil / Berm — 4 walls of 20cm height */}
-      <mesh position={[cx, BODEGA_ELEVATION + pretilH / 2, zone.zMin]}>
-        <boxGeometry args={[width + pretilThick, pretilH, pretilThick]} />
-        <meshStandardMaterial color={zone.borderColor} roughness={0.5} />
-      </mesh>
-      <mesh position={[cx, BODEGA_ELEVATION + pretilH / 2, zone.zMax]}>
-        <boxGeometry args={[width + pretilThick, pretilH, pretilThick]} />
-        <meshStandardMaterial color={zone.borderColor} roughness={0.5} />
-      </mesh>
-      <mesh position={[zone.xMin, BODEGA_ELEVATION + pretilH / 2, cz]}>
-        <boxGeometry args={[pretilThick, pretilH, depth]} />
-        <meshStandardMaterial color={zone.borderColor} roughness={0.5} />
-      </mesh>
-      <mesh position={[zone.xMax, BODEGA_ELEVATION + pretilH / 2, cz]}>
-        <boxGeometry args={[pretilThick, pretilH, depth]} />
-        <meshStandardMaterial color={zone.borderColor} roughness={0.5} />
+      {/* Floor Pattern (Translucent red/blue) */}
+      <mesh position={[10, BODEGA_ELEVATION + 0.02, 1.5]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[20, 3]} />
+        <meshStandardMaterial color="#ef4444" transparent opacity={0.3} />
       </mesh>
     </group>
+  );
+}
+
+function InternalBerm() {
+  const h = 0.2;
+  const thick = 0.15;
+  const material = new THREE.MeshStandardMaterial({ color: "#ef4444" });
+
+  return (
+    <group>
+      {/* North */}
+      <mesh position={[BODEGA_WIDTH / 2, BODEGA_ELEVATION + h / 2, thick / 2]}>
+        <boxGeometry args={[BODEGA_WIDTH, h, thick]} />
+        <meshStandardMaterial color="#ef4444" />
+      </mesh>
+      {/* South */}
+      <mesh position={[BODEGA_WIDTH / 2, BODEGA_ELEVATION + h / 2, BODEGA_DEPTH - thick / 2]}>
+        <boxGeometry args={[BODEGA_WIDTH, h, thick]} />
+        <meshStandardMaterial color="#ef4444" />
+      </mesh>
+      {/* West */}
+      <mesh position={[thick / 2, BODEGA_ELEVATION + h / 2, BODEGA_DEPTH / 2]}>
+        <boxGeometry args={[thick, h, BODEGA_DEPTH]} />
+        <meshStandardMaterial color="#ef4444" />
+      </mesh>
+      {/* East (partial due to docks) */}
+      <mesh position={[BODEGA_WIDTH - thick / 2, BODEGA_ELEVATION + h / 2, 10]}>
+        <boxGeometry args={[thick, h, 20]} />
+        <meshStandardMaterial color="#ef4444" />
+      </mesh>
+      <mesh position={[BODEGA_WIDTH - thick / 2, BODEGA_ELEVATION + h / 2, 40]}>
+        <boxGeometry args={[thick, h, 20]} />
+        <meshStandardMaterial color="#ef4444" />
+      </mesh>
+    </group>
+  );
+}
+
+function BatteryWall() {
+  const h = 3.0;
+  const x = 10;
+  const zStart = 40;
+  const zEnd = 50;
+  
+  return (
+    <mesh position={[x, BODEGA_ELEVATION + h / 2, (zStart + zEnd) / 2]}>
+      <boxGeometry args={[0.15, h, zEnd - zStart]} />
+      <meshStandardMaterial color="#f1f5f9" />
+    </mesh>
   );
 }
 
@@ -192,51 +225,6 @@ function AdministrationOffice() {
 }
 
 
-// ══════════════════════════════════════════════════════════════════════════════
-// SUB: Lavaojos de Emergencia (DS 43 / DS 594)
-// ══════════════════════════════════════════════════════════════════════════════
-
-function EmergencyEyewash() {
-  const x = 22; // Near DS43 corner
-  const z = 1.5;
-  const y = BODEGA_ELEVATION;
-
-  return (
-    <group position={[x, y, z]}>
-      {/* Pedestal */}
-      <mesh position={[0, 0.5, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 1, 8]} />
-        <meshStandardMaterial color="#94a3b8" metalness={0.8} />
-      </mesh>
-      {/* Basin (Green) */}
-      <mesh position={[0, 1.0, 0]}>
-        <cylinderGeometry args={[0.25, 0.2, 0.15, 16]} />
-        <meshStandardMaterial color="#22c55e" roughness={0.3} />
-      </mesh>
-      {/* Nozzles */}
-      <mesh position={[0, 1.1, 0]}>
-        <boxGeometry args={[0.3, 0.05, 0.05]} />
-        <meshStandardMaterial color="#cbd5e1" metalness={0.9} />
-      </mesh>
-      {/* Safety Sign (Green Diamond/Square) */}
-      <group position={[0, 1.8, 0.06]}>
-        <mesh>
-          <boxGeometry args={[0.5, 0.5, 0.01]} />
-          <meshStandardMaterial color="#166534" emissive="#166534" emissiveIntensity={0.5} />
-        </mesh>
-        <Text
-          position={[0, 0, 0.01]}
-          fontSize={0.08}
-          color="#ffffff"
-          anchorX="center"
-          anchorY="middle"
-        >
-          LAVAOJOS
-        </Text>
-      </group>
-    </group>
-  );
-}
 
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -246,15 +234,16 @@ function EmergencyEyewash() {
 export default function Warehouse() {
   return (
     <group>
-      {/* 1. LOSA BASE — Plano a Y=1.2m (nivel operativo) */}
+      {/* 1. LOSA BASE — Plano a Y=1.2m (nivel operativo) — Acabado Epóxico */}
       <mesh
         position={[centerX, BODEGA_ELEVATION, centerZ]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
         <planeGeometry args={[BODEGA_WIDTH, BODEGA_DEPTH]} />
         <meshStandardMaterial
-          color={COLORS.slab}
-          roughness={0.8}
+          color="#94a3b8" // Gris acero epóxico
+          roughness={0.05} // Liso y brillante
+          metalness={0.2}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -273,12 +262,18 @@ export default function Warehouse() {
 
       <BatteryLayout />
 
-      {/* DS43 Walls */}
+      {/* Internal Containment Berm (DS 43) */}
+      <InternalBerm />
+
+      {/* DS43 Firewall and Zone */}
       <DS43FlammableZoneWalls />
+
+      {/* Battery RF-60 Wall */}
+      <BatteryWall />
 
       {/* Administration & Safety */}
       <AdministrationOffice />
-      <EmergencyEyewash />
+      <EmergencySystems />
     </group>
   );
 }

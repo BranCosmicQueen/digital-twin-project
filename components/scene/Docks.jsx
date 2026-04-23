@@ -68,21 +68,45 @@ export default function Docks() {
                 opacity={0.8}
               />
             </mesh>
+
+            {/* Bumpers (Topes negros) */}
+            {[-DOCK_WIDTH / 2 + 0.5, DOCK_WIDTH / 2 - 0.5].map((dz, bi) => (
+              <mesh key={`bumper-${bi}`} position={[DOCK_WALL_X + DOCK_DEPTH - 0.1, BODEGA_ELEVATION / 2, dock.z + dz]}>
+                <boxGeometry args={[0.2, BODEGA_ELEVATION, 0.4]} />
+                <meshStandardMaterial color="#111" roughness={0.1} />
+              </mesh>
+            ))}
+
+            {/* Traffic Lights (Semáforos) */}
+            <group position={[DOCK_WALL_X + 0.2, BODEGA_ELEVATION + 2.5, dock.z + DOCK_WIDTH / 2 + 0.3]}>
+              <mesh>
+                <boxGeometry args={[0.2, 0.6, 0.1]} />
+                <meshStandardMaterial color="#333" />
+              </mesh>
+              <mesh position={[0, 0.15, 0.06]}>
+                <sphereGeometry args={[0.08]} />
+                <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.5} />
+              </mesh>
+              <mesh position={[0, -0.15, 0.06]}>
+                <sphereGeometry args={[0.08]} />
+                <meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.5} />
+              </mesh>
+            </group>
           </group>
         );
       })}
 
-      {/* ═══ Canaleta de Contención DS 43 (X=63) ═══ */}
-      <mesh position={[CONTAINMENT_CHANNEL_X, 0, TERRAIN_DEPTH / 2]}>
-        <boxGeometry args={[CONTAINMENT_CHANNEL_WIDTH, CONTAINMENT_CHANNEL_DEPTH, TERRAIN_DEPTH]} />
-        <meshStandardMaterial
-          color={COLORS.containmentChannel}
-          emissive={COLORS.containmentChannel}
-          emissiveIntensity={0.3}
-          metalness={0.6}
-          roughness={0.4}
-        />
-      </mesh>
+      {/* Exterior Emergency Shower */}
+      <group position={[62, 0, 40]}>
+        <mesh position={[0, 1.25, 0]}>
+          <cylinderGeometry args={[0.05, 0.05, 2.5]} />
+          <meshStandardMaterial color="#22c55e" />
+        </mesh>
+        <mesh position={[0, 2.4, 0.3]}>
+          <boxGeometry args={[0.4, 0.1, 0.6]} />
+          <meshStandardMaterial color="#22c55e" />
+        </mesh>
+      </group>
     </group>
   );
 }

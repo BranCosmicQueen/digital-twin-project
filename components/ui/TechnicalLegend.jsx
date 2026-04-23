@@ -1,0 +1,99 @@
+'use client';
+
+import { useState } from 'react';
+import { Icon } from '@iconify/react';
+import useSimStore from '@/store/useSimStore';
+
+export default function TechnicalLegend() {
+  const { viewMode } = useSimStore();
+  const [isOpen, setIsOpen] = useState(true);
+
+  if (viewMode !== '2d') return null;
+
+  const zones = [
+    { color: '#1E88E5', label: 'Zona A - Dinámico (FIFO)' },
+    { color: '#FBC02D', label: 'Zona B - Selectivo Doble Prof.' },
+    { color: '#F57C00', label: 'Zona C - Selectivo Estándar' },
+    { color: '#ef4444', label: 'Zona DS 43 - Inflamables' },
+    { color: '#FDE68A', label: 'Zona Carga Baterías' },
+  ];
+
+  const symbols = [
+    { color: '#ef4444', label: 'Extintor / Red Húmeda' },
+    { color: '#22c55e', label: 'Ducha / Lavaojos' },
+    { color: '#3b82f6', label: 'Drenaje API / Canaleta' },
+    { color: '#facc15', label: 'Kit Antiderrame' },
+    { color: '#333', label: 'Muro Cortafuego RF-120' },
+  ];
+
+  return (
+    <div style={{
+      position: 'absolute',
+      left: '20px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      zIndex: 100,
+      width: isOpen ? '280px' : '48px',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      backdropFilter: 'blur(10px)',
+      borderRadius: '12px',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+      border: '1px solid rgba(0,0,0,0.1)',
+      overflow: 'hidden',
+    }}>
+      {/* Header / Toggle Button */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          width: '100%',
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isOpen ? 'space-between' : 'center',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          borderBottom: isOpen ? '1px solid #f1f5f9' : 'none',
+        }}
+      >
+        {isOpen && <span style={{ fontWeight: 800, fontSize: '13px', color: '#1e293b', letterSpacing: '0.05em' }}>LEYENDA TÉCNICA</span>}
+        <Icon icon={isOpen ? "mdi:chevron-left" : "mdi:format-list-bulleted"} width="20" color="#64748b" />
+      </button>
+
+      {isOpen && (
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Section: Zonas */}
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8', marginBottom: '10px', textTransform: 'uppercase' }}>Zonificación</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {zones.map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '20px', height: '10px', backgroundColor: item.color, borderRadius: '2px' }} />
+                  <span style={{ fontSize: '12px', color: '#475569', fontWeight: 600 }}>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Section: Simbología */}
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8', marginBottom: '10px', textTransform: 'uppercase' }}>Simbología de Objetos</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {symbols.map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '12px', height: '12px', backgroundColor: item.color, borderRadius: '50%' }} />
+                  <span style={{ fontSize: '12px', color: '#475569', fontWeight: 500 }}>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ fontSize: '10px', color: '#94a3b8', borderTop: '1px solid #f1f5f9', paddingTop: '8px', fontStyle: 'italic' }}>
+            Normativa Planta Maipú - ESMAX
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

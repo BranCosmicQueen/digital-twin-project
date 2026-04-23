@@ -17,9 +17,11 @@ import {
   BODEGA_ELEVATION,
 } from '@/lib/constants';
 
-// Center of the warehouse
-const CENTER_X = BODEGA_WIDTH / 2;   // 30
-const CENTER_Z = BODEGA_DEPTH / 2;   // 25
+// Center points
+const WAREHOUSE_CENTER_X = BODEGA_WIDTH / 2; // 30
+const SITE_CENTER_X = 60; // User request: Center at 60
+const SITE_CENTER_Z = BODEGA_DEPTH / 2; // 25
+const TOTAL_SITE_WIDTH = 100;
 
 export default function CameraController() {
   const { set, size } = useThree();
@@ -34,26 +36,26 @@ export default function CameraController() {
     const cam = orthoCamRef.current;
     if (!cam) return;
 
-    // Position directly above center of bodega
-    cam.position.set(CENTER_X, 100, CENTER_Z);
+    // Position directly above center of site
+    cam.position.set(SITE_CENTER_X, 100, SITE_CENTER_Z);
     cam.up.set(0, 0, -1); // Z-negative is "up" in plan view (North at top)
-    cam.lookAt(CENTER_X, 0, CENTER_Z);
+    cam.lookAt(SITE_CENTER_X, 0, SITE_CENTER_Z);
 
-    // Calculate zoom to fit the full bodega with margins
-    const marginX = 10; // meters of margin (for ruler labels)
-    const marginZ = 8;
-    const totalWidth = BODEGA_WIDTH + marginX;
+    // Calculate zoom to fit the full 100m site with margins
+    const marginX = 20; // meters of margin for full site
+    const marginZ = 10;
+    const totalWidth = TOTAL_SITE_WIDTH + marginX;
     const totalDepth = BODEGA_DEPTH + marginZ;
 
     const zoomW = size.width / totalWidth;
     const zoomH = size.height / totalDepth;
-    cam.zoom = Math.min(zoomW, zoomH) * 0.92;
+    cam.zoom = Math.min(zoomW, zoomH) * 0.95;
 
     cam.updateProjectionMatrix();
     set({ camera: cam });
 
     if (controlsRef.current) {
-      controlsRef.current.target.set(CENTER_X, 0, CENTER_Z);
+      controlsRef.current.target.set(SITE_CENTER_X, 0, SITE_CENTER_Z);
       controlsRef.current.update();
     }
   }, [set, size.width, size.height]);
@@ -119,11 +121,11 @@ export default function CameraController() {
         far={1000}
       />
 
-      {/* Orthographic Camera (2D cenital — default for validation) */}
+      {/* Orthographic Camera (2D cenital) */}
       <OrthographicCamera
         ref={orthoCamRef}
         makeDefault={viewMode === '2d'}
-        position={[CENTER_X, 100, CENTER_Z]}
+        position={[SITE_CENTER_X, 100, SITE_CENTER_Z]}
         zoom={10}
         near={0.1}
         far={500}
@@ -143,7 +145,7 @@ export default function CameraController() {
         minDistance={2}
         maxDistance={400}
         screenSpacePanning={true}
-        target={[CENTER_X, 0, CENTER_Z]}
+        target={[SITE_CENTER_X, 0, SITE_CENTER_Z]}
       />
     </>
   );

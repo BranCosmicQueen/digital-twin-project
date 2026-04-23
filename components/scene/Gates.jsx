@@ -62,22 +62,22 @@ export default function Gates({ inboundGateRef }) {
         </mesh>
       </group>
 
-      {/* ── Guardhouse (Caseta del Guardia) ── */}
+      {/* ── Admin Block (Bloque Administrativo y Servicios) ── */}
       <group position={[GUARDHOUSE_X - GUARDHOUSE_WIDTH / 2, 0, GUARDHOUSE_Z]}>
         {/* Main cabin structure */}
-        <mesh position={[0, 1.5, 0]} castShadow>
-          <boxGeometry args={[GUARDHOUSE_WIDTH, 3, GUARDHOUSE_DEPTH]} />
-          <meshStandardMaterial color="#e5e7eb" roughness={0.7} />
+        <mesh position={[0, 1.75, 0]} castShadow>
+          <boxGeometry args={[GUARDHOUSE_WIDTH, 3.5, GUARDHOUSE_DEPTH]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.4} metalness={0.1} />
         </mesh>
-        {/* Roof */}
-        <mesh position={[0, 3.1, 0]} castShadow>
-          <boxGeometry args={[GUARDHOUSE_WIDTH + 0.4, 0.2, GUARDHOUSE_DEPTH + 0.4]} />
-          <meshStandardMaterial color="#374151" roughness={0.9} />
+        {/* Roof with overhang */}
+        <mesh position={[0, 3.6, 0]} castShadow>
+          <boxGeometry args={[GUARDHOUSE_WIDTH + 1.0, 0.3, GUARDHOUSE_DEPTH + 1.0]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.9} />
         </mesh>
-        {/* Lookout Window (Facing gate) */}
-        <mesh position={[0, 1.6, GUARDHOUSE_DEPTH / 2 + 0.01]}>
-          <boxGeometry args={[GUARDHOUSE_WIDTH - 0.4, 1.2, 0.1]} />
-          <meshStandardMaterial color="#2563eb" transparent opacity={0.6} metalness={0.9} roughness={0.1} />
+        {/* Large Windows (Facing North and Gate) */}
+        <mesh position={[0, 1.8, GUARDHOUSE_DEPTH / 2 + 0.01]}>
+          <boxGeometry args={[GUARDHOUSE_WIDTH - 1.0, 1.5, 0.1]} />
+          <meshStandardMaterial color="#38bdf8" transparent opacity={0.5} metalness={0.9} />
         </mesh>
       </group>
     </group>

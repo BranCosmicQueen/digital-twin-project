@@ -10,7 +10,9 @@ import Warehouse from './Warehouse';
 import Terrain from './Terrain';
 import Docks from './Docks';
 import Weighbridge from './Weighbridge';
-import RespelZone from './RespelZone';
+import SafeZones from './SafeZones';
+import YardSafety from './YardSafety';
+import FloorPlanAnnotations from './FloorPlanAnnotations';
 import Gates from './Gates';
 import Truck from './Truck';
 import FloorMarkings from './FloorMarkings';
@@ -99,7 +101,9 @@ export default function Scene() {
         <SimulationManager />
         <Docks />
         <Weighbridge />
-        <RespelZone />
+        <SafeZones />
+        <YardSafety />
+        <FloorPlanAnnotations />
         <GatesContainer />
         <BoundarySensors />
         <SimulationTruck />

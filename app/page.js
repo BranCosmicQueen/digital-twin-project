@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import useSimStore from '@/store/useSimStore';
 
 import FloatingControls from '@/components/ui/FloatingControls';
+import TechnicalLegend from '@/components/ui/TechnicalLegend';
 const Scene = dynamic(() => import('@/components/scene/Scene'), { ssr: false });
 
 const keyboardMap = [
@@ -15,7 +16,7 @@ const keyboardMap = [
 ];
 
 export default function Home() {
-  const { uiVisible } = useSimStore();
+  const { uiVisible, viewMode } = useSimStore();
 
   return (
     <main className="relative w-screen h-screen overflow-hidden" style={{ background: '#F3F4F6' }}>
@@ -49,49 +50,8 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Legend */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 16,
-              left: 16,
-              zIndex: 10,
-              background: 'rgba(255,255,255,0.92)',
-              backdropFilter: 'blur(8px)',
-              borderRadius: 12,
-              padding: '12px 16px',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-              border: '1px solid rgba(0,0,0,0.06)',
-              fontSize: 11,
-              color: '#374151',
-              lineHeight: 1.8,
-              maxWidth: 240,
-            }}
-          >
-            <div style={{ fontWeight: 800, marginBottom: 6, fontSize: 11, color: '#6B7280', letterSpacing: '0.05em', borderBottom: '1px solid #eee', paddingBottom: 4 }}>
-              LEYENDA LOGÍSTICA
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-sm bg-blue-300" />
-              <span>Zona Recepción</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-sm bg-green-300" />
-              <span>Zona Despacho</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-sm bg-sky-300" />
-              <span>Zona A (Dinámico)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-sm bg-amber-300" />
-              <span>Zona B (Selectivo)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-sm bg-red-400" />
-              <span>DS 43 — Inflamables</span>
-            </div>
-          </div>
+          {/* Technical Legend Overlay */}
+          <TechnicalLegend />
 
           {/* Scale reference */}
           <div

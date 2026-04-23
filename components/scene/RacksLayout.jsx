@@ -18,10 +18,10 @@ const BEAM_H = 0.15;
 const BEAM_D = 0.08; 
 const LEVELS = [0.15, 2.0, 4.0, 6.0, 8.0, 10.0]; // 6 Niveles de vigas (Base y Techo estéticos)
 
-// Colors
-const COLOR_ZONE_A = '#0284C7'; // Cyan oscuro
-const COLOR_ZONE_B = '#EA580C'; // Naranja industrial
-const COLOR_ZONE_C = '#4B5563'; // Gris oscuro
+// Colors (Normativos)
+const COLOR_ZONE_A = '#1E88E5'; // Azul Técnico
+const COLOR_ZONE_B = '#FBC02D'; // Amarillo Tráfico
+const COLOR_ZONE_C = '#ef4444'; // Rojo (Cambiado de Naranja)
 const COLOR_POST = '#1E3A8A';   // Azul marino para pilares
 
 // Dimensiones estándar Pallet
@@ -194,6 +194,28 @@ function InstancedSafetyMesh({ positions, rotY = 0 }) {
   );
 }
 
+function InstancedAccessories({ positions, color, size }) {
+  const meshRef = useRef();
+  const geom = useMemo(() => new THREE.BoxGeometry(...size), [size]);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  useLayoutEffect(() => {
+    if (!meshRef.current || positions.length === 0) return;
+    positions.forEach((pos, i) => {
+      dummy.position.set(...pos);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    });
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  }, [positions]);
+
+  return (
+    <instancedMesh ref={meshRef} args={[geom, null, positions.length]}>
+      <meshStandardMaterial color={color} roughness={0.3} metalness={0.2} />
+    </instancedMesh>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // MAIN LAYOUT
 // ══════════════════════════════════════════════════════════════════════════════
@@ -210,6 +232,8 @@ export default function RacksLayout() {
       palletsC: [],
       drums: [],
       safetyMeshes: [],
+      spillTrays: [],
+      sprinklers: [],
     };
 
 
@@ -300,6 +324,16 @@ export default function RacksLayout() {
           // Si es el nivel superior (10.0m), dejamos las vigas "cierras" pero no ponemos pallets por estética
           if (levelY === 10.0) return;
 
+          // Accesorios específicos Zona A
+          if (isZoneA) {
+            // Bandeja antiderrame bajo el nivel 1
+            if (levelY === 0.15) {
+              data.spillTrays.push([cx, BODEGA_ELEVATION + 0.1, cz]);
+            }
+            // Rociadores In-Rack (tubería roja horizontal)
+            data.sprinklers.push([cx, by + 1.8, cz]);
+          }
+
           // Generación de 4 Pallets por nivel 
           const palletY = by + (BEAM_H / 2) + (PALLET_H / 2);
           const palletZFront = (front1 + front2) / 2;
@@ -379,6 +413,10 @@ export default function RacksLayout() {
       {/* 3. Objetos de Emergencia (Tambores DS43) y Anti-caídas */}
       <InstancedDrums positions={layoutData.drums} />
       <InstancedSafetyMesh positions={layoutData.safetyMeshes} rotY={0} />
+
+      {/* 4. Accesorios Técnicos */}
+      <InstancedAccessories positions={layoutData.spillTrays} color="#475569" size={[RACK_WIDTH - 0.2, 0.05, RACK_DEPTH - 0.2]} />
+      <InstancedAccessories positions={layoutData.sprinklers} color="#ef4444" size={[RACK_WIDTH, 0.05, 0.05]} />
 
       {/* Texts removed per clean base requirement */}
     </group>
