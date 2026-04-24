@@ -9,8 +9,11 @@ import {
   BODEGA_ELEVATION,
   WALL_HEIGHT,
   DS43_ZONE,
-  COLORS
+  COLORS,
+  GLASS_STYLE
 } from '@/lib/constants';
+import useSimStore from '@/store/useSimStore';
+import { Html } from '@react-three/drei';
 import RacksLayout from './RacksLayout';
 import StagingLayout from './StagingLayout';
 import BatteryLayout from './BatteryLayout';
@@ -185,7 +188,7 @@ function BatteryWall() {
 // SUB: Administración (North-East Office)
 // ══════════════════════════════════════════════════════════════════════════════
 
-function AdministrationOffice() {
+function AdministrationOffice({ is2D }) {
   const width = 10;
   const depth = 5;
   const height = 3.5;
@@ -287,21 +290,13 @@ function AdministrationOffice() {
       </group>
       
       {/* Label */}
-      <group position={[0, height - 0.5, depth / 2 + 0.06]}>
-        <mesh>
-          <boxGeometry args={[4, 0.6, 0.02]} />
-          <meshStandardMaterial color="#1e293b" />
-        </mesh>
-        <Text
-          position={[0, 0, 0.02]}
-          fontSize={0.35}
-          color="#ffffff"
-          anchorX="center"
-          anchorY="middle"
-        >
-          ADMINISTRACIÓN
-        </Text>
-      </group>
+      {is2D && (
+        <Html position={[0, height - 0.5, depth / 2 + 0.1]} center>
+          <div style={{ ...GLASS_STYLE, background: 'rgba(30, 41, 59, 0.8)', color: '#fff', border: 'none' }}>
+            ADMINISTRACIÓN
+          </div>
+        </Html>
+      )}
     </group>
   );
 }
@@ -314,6 +309,9 @@ function AdministrationOffice() {
 // ══════════════════════════════════════════════════════════════════════════════
 
 export default function Warehouse() {
+  const viewMode = useSimStore(s => s.viewMode);
+  const is2D = viewMode === '2d';
+
   return (
     <group>
       {/* 1. LOSA BASE — Plano a Y=1.2m (nivel operativo) — Acabado Epóxico */}
@@ -354,7 +352,7 @@ export default function Warehouse() {
       <BatteryWall />
 
       {/* Administration & Safety */}
-      <AdministrationOffice />
+      <AdministrationOffice is2D={is2D} />
       <EmergencySystems />
     </group>
   );

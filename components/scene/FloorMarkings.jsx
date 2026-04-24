@@ -1,8 +1,7 @@
-'use client';
-
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { Text, Line } from '@react-three/drei';
+import { Text, Line, Html } from '@react-three/drei';
+import useSimStore from '@/store/useSimStore';
 import {
   BODEGA_WIDTH,
   BODEGA_DEPTH,
@@ -33,6 +32,7 @@ import {
   ROMANA_Z,
   ROMANA_WIDTH,
   ROMANA_DEPTH,
+  GLASS_STYLE
 } from '@/lib/constants';
 
 
@@ -99,30 +99,38 @@ function ReferenceGrid() {
   );
 }
 
-function RulerLabels() {
-  const labels = useMemo(() => {
-    const items = [];
-    for (let x = 0; x <= GATE_X; x += 10) {
-      items.push({ text: `${x}m`, position: [x, ZONE_Y + 0.02, -1.5], color: COLORS.gridMajor });
-    }
-    for (let z = 0; z <= BODEGA_DEPTH; z += 10) {
-      items.push({ text: `${z}m`, position: [-1.8, ZONE_Y + 0.02, z], color: COLORS.gridMajor });
-    }
-    return items;
-  }, []);
+function RulerLabels({ is2D }) {
+  if (!is2D) return null;
+  const labels = [
+    { text: '0m', position: [0, ZONE_Y + 0.02, -1.5] },
+    { text: '10m', position: [10, ZONE_Y + 0.02, -1.5] },
+    { text: '20m', position: [20, ZONE_Y + 0.02, -1.5] },
+    { text: '30m', position: [30, ZONE_Y + 0.02, -1.5] },
+    { text: '40m', position: [40, ZONE_Y + 0.02, -1.5] },
+    { text: '50m', position: [50, ZONE_Y + 0.02, -1.5] },
+    { text: '60m', position: [60, ZONE_Y + 0.02, -1.5] },
+    { text: '0m', position: [-1.8, ZONE_Y + 0.02, 0] },
+    { text: '10m', position: [-1.8, ZONE_Y + 0.02, 10] },
+    { text: '20m', position: [-1.8, ZONE_Y + 0.02, 20] },
+    { text: '30m', position: [-1.8, ZONE_Y + 0.02, 30] },
+    { text: '40m', position: [-1.8, ZONE_Y + 0.02, 40] },
+    { text: '50m', position: [-1.8, ZONE_Y + 0.02, 50] },
+  ];
 
   return (
     <group>
       {labels.map((lbl, i) => (
-        <Text key={`ruler-${i}`} position={lbl.position} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.8} color={lbl.color} anchorX="center" anchorY="middle" fillOpacity={0.7}>
-          {lbl.text}
-        </Text>
+        <Html key={`ruler-${i}`} position={lbl.position} center>
+          <div style={{ ...GLASS_STYLE, fontSize: '9px', padding: '2px 4px', background: 'transparent', border: 'none', boxShadow: 'none', color: '#64748b' }}>
+            {lbl.text}
+          </div>
+        </Html>
       ))}
     </group>
   );
 }
 
-function FloorZone({ zone, opacity = 0.25 }) {
+function FloorZone({ zone, opacity = 0.25, is2D }) {
   const width = zone.xMax - zone.xMin;
   const depth = zone.zMax - zone.zMin;
   const cx = zone.xMin + width / 2;
@@ -141,14 +149,18 @@ function FloorZone({ zone, opacity = 0.25 }) {
         ]}
         color={zone.color} lineWidth={2} transparent opacity={0.7}
       />
-      <Text position={[cx, ZONE_Y + 0.02, cz]} rotation={[-Math.PI / 2, 0, 0]} fontSize={Math.min(width, depth) * 0.12} color={zone.color} anchorX="center" anchorY="middle" fillOpacity={0.85}>
-        {zone.label}
-      </Text>
+      {is2D && (
+        <Html position={[cx, ZONE_Y + 0.02, cz]} center>
+          <div style={{ ...GLASS_STYLE, borderLeft: `3px solid ${zone.color}` }}>
+            {zone.label}
+          </div>
+        </Html>
+      )}
     </group>
   );
 }
 
-function DS43FloorLines() {
+function DS43FloorLines({ is2D }) {
   const zone = DS43_ZONE;
   const cx = zone.xMin + (zone.xMax - zone.xMin) / 2;
   
@@ -161,63 +173,47 @@ function DS43FloorLines() {
         ]}
         color={zone.borderColor} lineWidth={3} transparent opacity={0.9}
       />
-      <Text position={[cx, ZONE_Y + 0.03, zone.zMax + 1]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.5} color={zone.borderColor} anchorX="center" anchorY="middle" fillOpacity={0.6}>
-        PRETIL 0.2m
-      </Text>
+      {is2D && (
+        <Html position={[cx, ZONE_Y + 0.03, zone.zMax + 1]} center>
+          <div style={{ ...GLASS_STYLE, fontSize: '9px', color: zone.borderColor }}>PRETIL 0.2m</div>
+        </Html>
+      )}
     </group>
   );
 }
 
-function GeneralTexts() {
+function GeneralTexts({ is2D }) {
+  if (!is2D) return null;
   const labels = [
     { text: 'STA. ADELA', position: [GATE_X + CALLE_ADELA_WIDTH / 2, 0.2, 25], fontSize: 2, color: '#ffffff', opacity: 0.5, rotationZ: Math.PI / 2 },
     { text: 'PORTÓN ACCESO', position: [102, 0.05, GATE_MAIN_Z], fontSize: 1, color: COLORS.gateEntry, opacity: 1 },
-    { text: '← 60m (BODEGA) →', position: [30, ZONE_Y + 0.02, -3], fontSize: 1.2, color: '#374151', opacity: 0.8 },
-    { text: '← 100m (BASE TOTAL) →', position: [50, ZONE_Y + 0.02, -6], fontSize: 1.5, color: '#1f2937', opacity: 0.9 },
-    // Carriles Inbound/Outbound en el patio (Frente a los muelles)
+    { text: '← 60m (BODEGA) →', position: [30, ZONE_Y + 0.02, -3.5], fontSize: 1.2, color: '#374151', opacity: 0.8 },
+    { text: '← 100m (BASE TOTAL) →', position: [50, ZONE_Y + 0.02, -7], fontSize: 1.5, color: '#1f2937', opacity: 0.9 },
     { text: 'INBOUND', position: [65, 0.02, 30], fontSize: 1.2, color: COLORS.accentInbound, opacity: 0.8 },
     { text: 'OUTBOUND', position: [65, 0.02, 20], fontSize: 1.2, color: COLORS.accentOutbound, opacity: 0.8 },
-
   ];
 
   return (
     <group>
       {labels.map((lbl, i) => (
-        <Text
-          key={i}
-          position={lbl.position}
-          rotation={[-Math.PI / 2, 0, lbl.rotationZ || 0]}
-          fontSize={lbl.fontSize}
-          color={lbl.color}
-          anchorX="center"
-          anchorY="middle"
-          fillOpacity={lbl.opacity || lbl.fillOpacity}
-        >
-          {lbl.text}
-        </Text>
+        <Html key={i} position={lbl.position} center>
+          <div style={{ 
+            ...GLASS_STYLE, 
+            transform: lbl.rotationZ ? `rotate(${lbl.rotationZ}rad)` : 'none',
+            fontSize: lbl.text.includes('100m') ? '14px' : '11px',
+            background: lbl.text.includes('STA. ADELA') ? 'rgba(30, 41, 59, 0.6)' : GLASS_STYLE.background,
+            color: lbl.text.includes('STA. ADELA') ? '#fff' : GLASS_STYLE.color,
+            borderColor: lbl.color || GLASS_STYLE.borderColor
+          }}>
+            {lbl.text}
+          </div>
+        </Html>
       ))}
     </group>
   );
 }
 
-function StagingFloors() {
-  return (
-    <group>
-      {/* Staging Inbound Floor */}
-      <mesh position={[DOCK_WALL_X - 7, ZONE_Y, DOCK_DESCARGA_Z]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[12, 10]} />
-        <meshStandardMaterial color={COLORS.stagingInbound} transparent opacity={0.06} emissive={COLORS.stagingInbound} emissiveIntensity={0.15} />
-      </mesh>
-      {/* Staging Outbound Floor */}
-      <mesh position={[DOCK_WALL_X - 7, ZONE_Y, DOCK_CARGA_Z]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[12, 10]} />
-        <meshStandardMaterial color={COLORS.stagingOutbound} transparent opacity={0.06} emissive={COLORS.stagingOutbound} emissiveIntensity={0.15} />
-      </mesh>
-    </group>
-  );
-}
-
-function AisleCorridors() {
+function AisleCorridors({ is2D }) {
   const aisles = AISLE_Z_CENTERS.map((zCenter, i) => ({
     cx: 25, cz: zCenter,
     width: 50, depth: AISLE_WIDTH,
@@ -234,18 +230,18 @@ function AisleCorridors() {
           </mesh>
           <Line points={[[0, ZONE_Y + 0.006, aisle.cz - aisle.depth / 2], [50, ZONE_Y + 0.006, aisle.cz - aisle.depth / 2]]} color={COLORS.aisleLines} lineWidth={1.5} transparent opacity={0.5} dashed dashSize={0.5} gapSize={0.3} />
           <Line points={[[0, ZONE_Y + 0.006, aisle.cz + aisle.depth / 2], [50, ZONE_Y + 0.006, aisle.cz + aisle.depth / 2]]} color={COLORS.aisleLines} lineWidth={1.5} transparent opacity={0.5} dashed dashSize={0.5} gapSize={0.3} />
-          <Text position={[25, ZONE_Y + 0.02, aisle.cz]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.8} color="#B45309" anchorX="center" anchorY="middle" fillOpacity={0.7}>
-            {aisle.label}
-          </Text>
+          {is2D && (
+            <Html position={[25, ZONE_Y + 0.02, aisle.cz]} center>
+              <div style={{ ...GLASS_STYLE, fontSize: '10px', color: '#92400e', background: 'rgba(254, 243, 199, 0.4)' }}>{aisle.label}</div>
+            </Html>
+          )}
         </group>
       ))}
     </group>
   );
 }
 
-// === NEW MASTER DOC COMPONENTS ===
-
-function PedestrianZone() {
+function PedestrianZone({ is2D }) {
   const zStart = PEDESTRIAN_ZONE_Z_START; // 40
   const zEnd = BODEGA_DEPTH; // 50
   const width = BODEGA_WIDTH;
@@ -269,14 +265,16 @@ function PedestrianZone() {
       </mesh>
       <Line points={[[0, ZONE_Y + 0.006, zStart], [width, ZONE_Y + 0.006, zStart]]} color="#eab308" lineWidth={4} dashed={false} />
       {stripes}
-      <Text position={[cx, ZONE_Y + 0.02, cz]} rotation={[-Math.PI / 2, 0, 0]} fontSize={1.5} color="#eab308" anchorX="center" anchorY="middle" fillOpacity={0.8}>
-        ZONA DE PICKING PEATONAL (SIN GRÚAS)
-      </Text>
+      {is2D && (
+        <Html position={[cx, ZONE_Y + 0.02, cz]} center>
+          <div style={{ ...GLASS_STYLE, background: 'rgba(254, 240, 138, 0.4)', color: '#854d0e' }}>ZONA DE PICKING PEATONAL (SIN GRÚAS)</div>
+        </Html>
+      )}
     </group>
   );
 }
 
-function SacredCircle() {
+function SacredCircle({ is2D }) {
   return (
     <group>
       {/* Highlighted Sacred Mutex Circle */}
@@ -288,14 +286,16 @@ function SacredCircle() {
         <circleGeometry args={[TURNING_RADIUS, 64]} />
         <meshBasicMaterial color="#ef4444" transparent opacity={0.05} />
       </mesh>
-      <Text position={[PATIO_CENTER_X, 0.05, PATIO_CENTER_Z]} rotation={[-Math.PI / 2, 0, 0]} fontSize={1} color="#ef4444" anchorX="center" anchorY="middle" fillOpacity={0.5}>
-        [ MUTEX ] GIRO CAMIONES
-      </Text>
+      {is2D && (
+        <Html position={[PATIO_CENTER_X, 0.05, PATIO_CENTER_Z]} center>
+          <div style={{ ...GLASS_STYLE, color: '#b91c1c', background: 'rgba(254, 226, 226, 0.4)' }}>[ MUTEX ] GIRO CAMIONES</div>
+        </Html>
+      )}
     </group>
   );
 }
 
-function PullZones() {
+function PullZones({ is2D }) {
   const zones = [PULL_ZONE_NORTH, PULL_ZONE_SOUTH];
   const width = 30; // X from 65 to 95
   const cx = 80;
@@ -318,9 +318,11 @@ function PullZones() {
               ]}
               color={z.color} lineWidth={2} transparent opacity={0.8}
             />
-            <Text position={[cx, 0.04, cz]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.8} color={z.color} anchorX="center" anchorY="middle" fillOpacity={0.9}>
-              {z.label} (ENCOLAMIENTO)
-            </Text>
+            {is2D && (
+              <Html position={[cx, 0.04, cz]} center>
+                <div style={{ ...GLASS_STYLE, color: z.color }}>{z.label} (ENCOLAMIENTO)</div>
+              </Html>
+            )}
           </group>
         );
       })}
@@ -328,7 +330,7 @@ function PullZones() {
   );
 }
 
-function RomanaMarkings() {
+function RomanaMarkings({ is2D }) {
   const cx = ROMANA_X;
   const cz = ROMANA_Z;
   const halfW = ROMANA_WIDTH / 2;
@@ -351,36 +353,26 @@ function RomanaMarkings() {
         opacity={0.4}
       />
       {/* Dimension Label */}
-      <Text
-        position={[cx, 0.05, cz + halfD + 1.5]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        fontSize={0.8}
-        color="#f59e0b"
-        anchorX="center"
-        anchorY="middle"
-        fillOpacity={0.6}
-      >
-        ROMANA PESANE [ 18.0m ]
-      </Text>
+      {is2D && (
+        <Html position={[cx, 0.05, cz + halfD + 2]} center>
+          <div style={{ ...GLASS_STYLE, color: '#b45309', background: 'rgba(255, 251, 235, 0.4)' }}>ROMANA PESANE [ 18.0m ]</div>
+        </Html>
+      )}
     </group>
   );
 }
 
 export default function FloorMarkings() {
+  const viewMode = useSimStore(s => s.viewMode);
+  const is2D = viewMode === '2d';
+
   return (
     <group>
-      {/* Base Grid and Rulers explicitly left per user requirement (they are outside/infrastructure) */}
       <ReferenceGrid />
-      <RulerLabels />
-      
-      {/* Free floating texts and labels specifically allowed outside the layout */}
-      <GeneralTexts />
-      
-      {/* Sacred Turning Circle restored per requirement */}
-      <SacredCircle />
-
-      {/* Weighbridge Markings */}
-      <RomanaMarkings />
+      <RulerLabels is2D={is2D} />
+      <GeneralTexts is2D={is2D} />
+      <SacredCircle is2D={is2D} />
+      <RomanaMarkings is2D={is2D} />
     </group>
   );
 }

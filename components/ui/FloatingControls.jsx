@@ -9,26 +9,26 @@ export default function FloatingControls() {
   const { setStatus, resetSimulation, status } = useSimulationStore();
 
   const buttonStyle = {
-    width: '48px',
-    height: '48px',
-    borderRadius: '14px',
-    background: 'rgba(255, 255, 255, 0.85)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(0, 0, 0, 0.08)',
-    color: '#374151',
+    width: '52px',
+    height: '52px',
+    borderRadius: '16px',
+    background: 'rgba(255, 255, 255, 0.4)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    border: '1px solid rgba(255, 255, 255, 0.5)',
+    color: '#1e293b',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-    boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
   };
 
   const itemClass = "transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed";
 
   return (
-    <div className="fixed z-[60] bottom-6 right-6 flex flex-col gap-3">
+    <div className="fixed z-[9999] bottom-6 right-6 flex flex-col gap-3">
       {/* 1. Toggle UI Button (Always visible) */}
       <button
         onClick={toggleUi}

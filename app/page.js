@@ -34,18 +34,19 @@ export default function Home() {
           <div
             style={{
               position: 'absolute',
-              top: 16,
-              left: 16,
-              zIndex: 10,
-              background: 'rgba(255,255,255,0.9)',
-              backdropFilter: 'blur(8px)',
-              borderRadius: 10,
-              padding: '8px 16px',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-              border: '1px solid rgba(0,0,0,0.08)',
+              top: 24,
+              left: 24,
+              zIndex: 9999,
+              background: 'rgba(255, 255, 255, 0.4)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              borderRadius: 12,
+              padding: '10px 20px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.6)',
             }}
           >
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#374151', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', letterSpacing: '0.04em' }}>
               GEMELO DIGITAL ESMAX — PLANTA MAIPÚ
             </span>
           </div>
@@ -57,16 +58,19 @@ export default function Home() {
           <div
             style={{
               position: 'absolute',
-              bottom: 16,
-              right: 80,
-              zIndex: 10,
-              background: 'rgba(255,255,255,0.8)',
-              backdropFilter: 'blur(4px)',
-              borderRadius: 8,
-              padding: '6px 12px',
-              fontSize: 10,
-              color: '#9CA3AF',
+              bottom: 24,
+              right: 88,
+              zIndex: 9999,
+              background: 'rgba(255, 255, 255, 0.4)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              borderRadius: 10,
+              padding: '8px 14px',
+              fontSize: 11,
+              color: '#64748b',
               fontWeight: 600,
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
             }}
           >
             📏 1m = 1u

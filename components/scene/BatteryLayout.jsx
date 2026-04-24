@@ -1,9 +1,8 @@
-'use client';
-
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { Text, Line } from '@react-three/drei';
-import { BODEGA_ELEVATION, BATTERY_ZONE } from '@/lib/constants';
+import { Text, Line, Html } from '@react-three/drei';
+import { BODEGA_ELEVATION, BATTERY_ZONE, GLASS_STYLE } from '@/lib/constants';
+import useSimStore from '@/store/useSimStore';
 
 function ChargingUnit({ position }) {
   return (
@@ -63,6 +62,9 @@ function SafetyBollard({ position }) {
 }
 
 export default function BatteryLayout() {
+  const viewMode = useSimStore(s => s.viewMode);
+  const is2D = viewMode === '2d';
+
   const chargers = [
     [2, BODEGA_ELEVATION, 43],
     [4, BODEGA_ELEVATION, 43],
@@ -105,16 +107,13 @@ export default function BatteryLayout() {
       ))}
 
       {/* Warning Sign */}
-      <Text
-        position={[5, BODEGA_ELEVATION + 0.05, 46]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        fontSize={0.8}
-        color="#B45309"
-        anchorX="center"
-        anchorY="middle"
-      >
-        ⚠ CARGA BATERÍAS ⚠
-      </Text>
+      {is2D && (
+        <Html position={[5, BODEGA_ELEVATION + 0.05, 46]} center>
+          <div style={{ ...GLASS_STYLE, color: '#92400e', background: 'rgba(254, 243, 199, 0.6)' }}>
+            ⚠ CARGA BATERÍAS ⚠
+          </div>
+        </Html>
+      )}
     </group>
   );
 }

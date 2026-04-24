@@ -1,8 +1,6 @@
-'use client';
-
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { Text } from '@react-three/drei';
+import { Text, Html } from '@react-three/drei';
 import {
   GATE_WAIT_X,
   GATE_MAIN_Z,
@@ -11,8 +9,10 @@ import {
   ROMANA_WIDTH,
   ROMANA_DEPTH,
   COLORS,
+  GLASS_STYLE
 } from '@/lib/constants';
 import { useSimulationStore } from '@/lib/store';
+import useSimStore from '@/store/useSimStore';
 
 
 function LaserSensor({ position, length, horizontal = true, active = false }) {
@@ -42,6 +42,8 @@ function LaserSensor({ position, length, horizontal = true, active = false }) {
 
 export default function BoundarySensors() {
   const { truckPosition, gateEntryOpen, truckStatus } = useSimulationStore();
+  const viewMode = useSimStore(s => s.viewMode);
+  const is2D = viewMode === '2d';
   
   // Logic to "detect" truck at gate
   const truckAtGate = truckPosition[0] < GATE_WAIT_X + 2 && truckPosition[0] > GATE_WAIT_X - 5;
@@ -68,25 +70,19 @@ export default function BoundarySensors() {
       />
 
       {/* Boundary Recognition UI (Floating labels when near limits) */}
-      {truckAtGate && truckStatus === 'parked' && (
-        <Text
-          position={[truckPosition[0], 5, truckPosition[2]]}
-          rotation={[0, -Math.PI / 2, 0]}
-          fontSize={0.8}
-          color="#3b82f6"
-        >
-          [ LÍMITE RECONOCIDO: PORTÓN ]
-        </Text>
+      {is2D && truckAtGate && truckStatus === 'parked' && (
+        <Html position={[truckPosition[0], 5, truckPosition[2]]} center>
+          <div style={{ ...GLASS_STYLE, color: '#3b82f6', border: '1px solid #3b82f6' }}>
+            [ LÍMITE RECONOCIDO: PORTÓN ]
+          </div>
+        </Html>
       )}
-      {truckAtRomana && truckStatus === 'parked' && (
-        <Text
-          position={[truckPosition[0], 5, truckPosition[2]]}
-          rotation={[0, -Math.PI / 2, 0]}
-          fontSize={0.8}
-          color="#f59e0b"
-        >
-          [ LÍMITE RECONOCIDO: ROMANA ]
-        </Text>
+      {is2D && truckAtRomana && truckStatus === 'parked' && (
+        <Html position={[truckPosition[0], 5, truckPosition[2]]} center>
+          <div style={{ ...GLASS_STYLE, color: '#f59e0b', border: '1px solid #f59e0b' }}>
+            [ LÍMITE RECONOCIDO: ROMANA ]
+          </div>
+        </Html>
       )}
     </group>
   );

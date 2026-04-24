@@ -13,7 +13,7 @@ export default function TechnicalLegend() {
   const zones = [
     { color: '#1E88E5', label: 'Zona A - Dinámico (FIFO)' },
     { color: '#FBC02D', label: 'Zona B - Selectivo Doble Prof.' },
-    { color: '#F57C00', label: 'Zona C - Selectivo Estándar' },
+    { color: '#ef4444', label: 'Zona C - Selectivo Estándar' },
     { color: '#ef4444', label: 'Zona DS 43 - Inflamables' },
     { color: '#FDE68A', label: 'Zona Carga Baterías' },
   ];
@@ -29,17 +29,18 @@ export default function TechnicalLegend() {
   return (
     <div style={{
       position: 'absolute',
-      left: '20px',
+      left: '24px',
       top: '50%',
       transform: 'translateY(-50%)',
-      zIndex: 100,
-      width: isOpen ? '280px' : '48px',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(10px)',
-      borderRadius: '12px',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-      border: '1px solid rgba(0,0,0,0.1)',
+      zIndex: 9999,
+      width: isOpen ? '280px' : '56px',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      backgroundColor: 'rgba(255, 255, 255, 0.35)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      borderRadius: '16px',
+      boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
+      border: '1px solid rgba(255, 255, 255, 0.5)',
       overflow: 'hidden',
     }}>
       {/* Header / Toggle Button */}
