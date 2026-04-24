@@ -18,6 +18,9 @@ import RacksLayout from './RacksLayout';
 import StagingLayout from './StagingLayout';
 import BatteryLayout from './BatteryLayout';
 import EmergencySystems from './EmergencySystems';
+import CagedDrums from './CagedDrums';
+import LogisticsEquipment from './LogisticsEquipment';
+import SafetySignage from './SafetySignage';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // BODEGA ESMAX — Layout Paramétrico (Flujo en "U")
@@ -182,113 +185,190 @@ function InternalBerm() {
 // SUB: Administración (North-East Office)
 // ══════════════════════════════════════════════════════════════════════════════
 
-function AdministrationOffice({ is2D }) {
-  const width = 10;
-  const depth = 5;
+function ServicesBlock({ is2D }) {
+  const width = 8;
+  const depth = 6;
   const height = 3.5;
-  const cx = 50 + width / 2;
+  const cx = 40 + width / 2;
   const cz = 0 + depth / 2;
   const setHoveredItem = useSimStore(s => s.setHoveredItem);
 
   return (
     <group position={[cx, BODEGA_ELEVATION, cz]} onPointerOut={() => setHoveredItem(null)}>
-      {/* Hitbox for hover */}
-      <mesh 
-        position={[0, height/2, 0]}
-        onPointerOver={() => is2D && setHoveredItem('ADMINISTRACIÓN / OFICINA')}
-      >
-        <boxGeometry args={[width, height, depth]} />
-        <meshBasicMaterial transparent opacity={0} />
+      {/* Losa */}
+      <mesh position={[0, 0.075, 0]}>
+        <boxGeometry args={[width, 0.15, depth]} />
+        <meshStandardMaterial color="#f1f5f9" />
       </mesh>
-      {/* 1. Glass Structure (Open look) */}
-      {/* Floor */}
-      <mesh position={[0, 0.01, 0]}>
-        <boxGeometry args={[width, 0.02, depth]} />
-        <meshStandardMaterial color="#e2e8f0" />
-      </mesh>
-      {/* Glass Walls (South/West) */}
-      <mesh position={[0, height / 2, depth / 2]}>
-        <boxGeometry args={[width, height, 0.05]} />
-        <meshStandardMaterial color="#bae6fd" transparent opacity={0.2} metalness={0.5} roughness={0.1} />
+      {/* Muros Sólidos (Privacidad) */}
+      <mesh position={[0, height / 2, -depth / 2]}>
+        <boxGeometry args={[width, height, 0.2]} />
+        <meshStandardMaterial color="#f8fafc" />
       </mesh>
       <mesh position={[-width / 2, height / 2, 0]}>
-        <boxGeometry args={[0.05, height, depth]} />
-        <meshStandardMaterial color="#bae6fd" transparent opacity={0.2} metalness={0.5} roughness={0.1} />
+        <boxGeometry args={[0.2, height, depth]} />
+        <meshStandardMaterial color="#f8fafc" />
       </mesh>
-      {/* Frame (Structural posts) */}
-      {[[-5, 2.5], [5, 2.5], [-5, -2.5], [5, -2.5]].map((p, i) => (
-        <mesh key={i} position={[p[0], height / 2, p[1]]}>
-          <boxGeometry args={[0.2, height, 0.2]} />
-          <meshStandardMaterial color="#334155" />
-        </mesh>
-      ))}
+      <mesh position={[0, height / 2, depth / 2]}>
+        <boxGeometry args={[width, height, 0.2]} />
+        <meshStandardMaterial color="#f8fafc" />
+      </mesh>
 
-      {/* 2. Furniture: Desks & Workstations */}
-      {[
-        { x: -3.5, z: -1.5 },
-        { x: -1, z: -1.5 },
-        { x: 1.5, z: -1.5 },
-      ].map((d, i) => (
-        <group key={`desk-${i}`} position={[d.x, 0, d.z]}>
-          {/* Tabletop */}
-          <mesh position={[0, 0.75, 0]}>
-            <boxGeometry args={[1.5, 0.05, 0.8]} />
-            <meshStandardMaterial color="#ffffff" />
-          </mesh>
-          {/* Monitor */}
-          <mesh position={[0, 1.1, -0.2]}>
-            <boxGeometry args={[0.6, 0.4, 0.02]} />
-            <meshStandardMaterial color="#1e293b" />
-          </mesh>
-          {/* Chair (Simple) */}
-          <mesh position={[0, 0.4, 0.6]}>
-            <cylinderGeometry args={[0.25, 0.25, 0.8, 8]} />
-            <meshStandardMaterial color="#475569" />
-          </mesh>
-        </group>
-      ))}
-
-      {/* 3. Logistics-Specific Gear */}
-      {/* Printer Table (Labels) */}
-      <group position={[4, 0, -1.5]}>
-        <mesh position={[0, 0.75, 0]}>
-          <boxGeometry args={[1, 0.05, 1]} />
+      {/* Interior: Tabiques de Baños */}
+      {[ -2, 0, 2 ].map((x, i) => (
+        <mesh key={i} position={[x, height / 2, -1]}>
+          <boxGeometry args={[0.05, height, 2]} />
           <meshStandardMaterial color="#cbd5e1" />
         </mesh>
-        <mesh position={[0, 0.9, 0]}>
-          <boxGeometry args={[0.4, 0.3, 0.4]} />
-          <meshStandardMaterial color="#334155" />
+      ))}
+      
+      {/* Shower area (Ducha) */}
+      <group position={[width/2 - 1.5, 0.15, 0]}>
+        <mesh position={[0, height/2, 0]}>
+          <boxGeometry args={[2.5, height, 0.05]} />
+          <meshStandardMaterial color="#bae6fd" transparent opacity={0.3} />
+        </mesh>
+        {/* Cabezal de ducha */}
+        <mesh position={[0, 2.2, -1]}>
+          <cylinderGeometry args={[0.1, 0.02, 0.2]} rotation={[Math.PI/2, 0, 0]} />
+          <meshStandardMaterial color="#94a3b8" />
         </mesh>
       </group>
 
-      {/* Safety Vest Rack (Chalecos reflectantes) */}
-      <group position={[-4, 0, 1.8]}>
-        <mesh position={[0, 1, 0]}>
-          <boxGeometry args={[0.05, 2, 2.5]} />
-          <meshStandardMaterial color="#334155" />
+      {/* Lavamanos */}
+      <group position={[-width/2 + 1.5, 0.15, depth/2 - 0.5]}>
+        <mesh position={[0, 0.8, 0]}>
+          <boxGeometry args={[2, 0.1, 0.6]} />
+          <meshStandardMaterial color="#ffffff" />
         </mesh>
-        {/* Vests (represented as bright neon blocks) */}
-        {[ -0.8, -0.4, 0, 0.4, 0.8 ].map((z, i) => (
-          <mesh key={`vest-${i}`} position={[0.05, 1.2, z]}>
-            <boxGeometry args={[0.05, 0.8, 0.3]} />
-            <meshStandardMaterial color={i % 2 === 0 ? '#fbbf24' : '#ea580c'} emissive={i % 2 === 0 ? '#fbbf24' : '#ea580c'} emissiveIntensity={0.3} />
+        {[ -0.6, 0.6 ].map((x, i) => (
+          <mesh key={i} position={[x, 0.9, 0]}>
+            <boxGeometry args={[0.4, 0.1, 0.4]} />
+            <meshStandardMaterial color="#f8fafc" roughness={0.1} />
           </mesh>
         ))}
       </group>
 
-      {/* Radio Charging Station */}
-      <group position={[4, 0, 1.5]}>
-        <mesh position={[0, 0.75, 0]}>
-          <boxGeometry args={[0.8, 0.05, 0.8]} />
-          <meshStandardMaterial color="#cbd5e1" />
+      {/* Hover Hitbox */}
+      <mesh 
+        position={[0, height/2, 0]}
+        onPointerOver={() => is2D && setHoveredItem('SERVICIOS / BAÑOS Y DUCHAS')}
+      >
+        <boxGeometry args={[width, height, depth]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+    </group>
+  );
+}
+
+function AdministrationOffice({ is2D }) {
+  const width = 12;
+  const depth = 6;
+  const height = 3.5;
+  const cx = 48 + width / 2;
+  const cz = 0 + depth / 2;
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+
+  return (
+    <group position={[cx, BODEGA_ELEVATION, cz]} onPointerOut={() => setHoveredItem(null)}>
+      {/* 1. Losa Técnica (Slab) */}
+      <mesh position={[0, 0.075, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width, 0.15, depth]} />
+        <meshStandardMaterial color="#f1f5f9" roughness={0.5} />
+      </mesh>
+
+      {/* 2. Muros Sólidos (Fondo y Lado) */}
+      <mesh position={[0, height / 2, -depth / 2]}>
+        <boxGeometry args={[width, height, 0.2]} />
+        <meshStandardMaterial color="#f8fafc" />
+      </mesh>
+      <mesh position={[width / 2, height / 2, 0]}>
+        <boxGeometry args={[0.2, height, depth]} />
+        <meshStandardMaterial color="#f8fafc" />
+      </mesh>
+
+      {/* 3. Fachada de Vidrio con Perfilería */}
+      <mesh position={[0, height / 2, depth / 2]}>
+        <boxGeometry args={[width, height, 0.05]} />
+        <meshStandardMaterial color="#bae6fd" transparent opacity={0.2} metalness={0.8} roughness={0.1} />
+      </mesh>
+      <mesh position={[-width / 2, height / 2, 0]}>
+        <boxGeometry args={[0.05, height, depth]} />
+        <meshStandardMaterial color="#bae6fd" transparent opacity={0.2} metalness={0.8} roughness={0.1} />
+      </mesh>
+      {/* Aluminum Frames */}
+      {[[-width/2, depth/2], [width/2, depth/2], [-width/2, -depth/2]].map((p, i) => (
+        <mesh key={i} position={[p[0], height/2, p[1]]}>
+          <boxGeometry args={[0.2, height, 0.2]} />
+          <meshStandardMaterial color="#475569" metalness={0.8} />
         </mesh>
-        {[ -0.2, 0.2 ].map((x, i) => (
-          [ -0.2, 0.2 ].map((z, j) => (
-            <mesh key={`radio-${i}-${j}`} position={[x, 0.9, z]}>
-              <boxGeometry args={[0.1, 0.2, 0.1]} />
-              <meshStandardMaterial color="#1e293b" />
-            </mesh>
-          ))
+      ))}
+
+      {/* 4. Mobiliario Interior */}
+      {/* Mostrador de Recepción (Driver Check-in) */}
+      <group position={[-width/2 + 2, 0.15, depth/2 - 1]}>
+        <mesh position={[0, 0.55, 0]}>
+          <boxGeometry args={[1.5, 1.1, 0.6]} />
+          <meshStandardMaterial color="#1e293b" />
+        </mesh>
+        <mesh position={[0, 1.1, 0]}>
+          <boxGeometry args={[1.6, 0.05, 0.7]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+      </group>
+
+      {/* Estaciones de Trabajo */}
+      {[
+        { x: 1, z: -1.5 }, { x: 3.5, z: -1.5 }, { x: 1, z: 1 }, { x: 3.5, z: 1 }
+      ].map((d, i) => (
+        <group key={`w-${i}`} position={[d.x, 0.15, d.z]}>
+          {/* Desk */}
+          <mesh position={[0, 0.75, 0]}>
+            <boxGeometry args={[1.8, 0.05, 1.2]} />
+            <meshStandardMaterial color="#ffffff" />
+          </mesh>
+          {/* Computer */}
+          <mesh position={[0, 1.0, -0.3]}>
+            <boxGeometry args={[0.6, 0.4, 0.02]} />
+            <meshStandardMaterial color="#000" />
+          </mesh>
+          {/* Drawer (Cajonera) */}
+          <mesh position={[0.6, 0.35, 0]}>
+            <boxGeometry args={[0.4, 0.7, 0.8]} />
+            <meshStandardMaterial color="#cbd5e1" />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Zona de Café / Break */}
+      <group position={[width/2 - 1.5, 0.15, -depth/2 + 1.5]}>
+        <mesh position={[0, 0.45, 0]}>
+          <boxGeometry args={[1.5, 0.9, 0.6]} />
+          <meshStandardMaterial color="#f8fafc" />
+        </mesh>
+        <mesh position={[0, 1, 0]}>
+          <boxGeometry args={[0.3, 0.2, 0.3]} />
+          <meshStandardMaterial color="#dc2626" /> {/* Cafetera */}
+        </mesh>
+      </group>
+
+      {/* Archivadores (Filing Cabinets) */}
+      <group position={[width/2 - 0.5, 0.15, depth/2 - 2]}>
+        {[0, 1, 2].map(z => (
+          <mesh key={z} position={[0, 1, -z*1]} castShadow>
+            <boxGeometry args={[0.8, 2, 0.8]} />
+            <meshStandardMaterial color="#94a3b8" metalness={0.5} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Ceiling Lights (LED Panels) */}
+      <group position={[0, height - 0.1, 0]}>
+        {[[-3, -1.5], [3, -1.5], [-3, 1.5], [3, 1.5]].map((p, i) => (
+          <mesh key={i} position={[p[0], 0, p[1]]}>
+            <planeGeometry args={[1.2, 0.6]} rotation={[Math.PI/2, 0, 0]} />
+            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.8} />
+          </mesh>
         ))}
       </group>
       
@@ -342,11 +422,15 @@ export default function Warehouse() {
 
       {/* DS43 Firewall and Zone */}
       <DS43FlammableZoneWalls />
+      <CagedDrums />
 
 
       {/* Administration & Safety */}
       <AdministrationOffice is2D={is2D} />
+      <ServicesBlock is2D={is2D} />
       <EmergencySystems />
+      <LogisticsEquipment />
+      <SafetySignage />
 
       {/* Global Background Clearance (Lowest priority, clears labels) */}
       <mesh 

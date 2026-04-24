@@ -47,8 +47,8 @@ export default function EmergencySystems() {
 
     // 2. Kits Antiderrame (Esquinas y zonas críticas)
     data.spillKits.push([5, BODEGA_ELEVATION + 0.3, 5]);
-    data.spillKits.push([55, BODEGA_ELEVATION + 0.3, 15]);
-    data.spillKits.push([55, BODEGA_ELEVATION + 0.3, 45]);
+    data.spillKits.push([45, BODEGA_ELEVATION + 0.3, 15]);
+    data.spillKits.push([45, BODEGA_ELEVATION + 0.3, 45]);
 
     // 3. Duchas de Emergencia (Verdes)
     data.showers.push([22, BODEGA_ELEVATION, 2]);

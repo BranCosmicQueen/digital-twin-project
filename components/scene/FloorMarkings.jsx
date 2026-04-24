@@ -36,8 +36,8 @@ import {
 } from '@/lib/constants';
 
 
-// Z-Centers from Warehouse for Aisle mapping
-const AISLE_Z_CENTERS = [16.2, 23.8, 31.4];
+// Centros de pasillos recalculados para quedar ENTRE las baterías de racks (Gaps)
+const AISLE_Z_CENTERS = [13.7, 18.7, 23.7, 28.7, 33.7];
 
 // Helper components for the floor markings
 
@@ -199,9 +199,13 @@ function GeneralTexts({ is2D }) {
 }
 
 function AisleCorridors({ is2D }) {
+  // Los pasillos ahora se limitan solo al ancho de la Zona B (X: 11 a 37.9)
+  const width = ZONE_B.xMax - ZONE_B.xMin;
+  const cx = ZONE_B.xMin + width / 2;
+
   const aisles = AISLE_Z_CENTERS.map((zCenter, i) => ({
-    cx: 25, cz: zCenter,
-    width: 50, depth: AISLE_WIDTH,
+    cx: cx, cz: zCenter,
+    width: width, depth: AISLE_WIDTH,
     label: i % 2 === 0 ? 'PASILLO ENTRADA →' : '← PASILLO SALIDA'
   }));
 
@@ -213,8 +217,8 @@ function AisleCorridors({ is2D }) {
             <planeGeometry args={[aisle.width, aisle.depth]} />
             <meshBasicMaterial color={COLORS.aisleLines} transparent opacity={0.15} side={THREE.DoubleSide} />
           </mesh>
-          <Line points={[[0, ZONE_Y + 0.006, aisle.cz - aisle.depth / 2], [50, ZONE_Y + 0.006, aisle.cz - aisle.depth / 2]]} color={COLORS.aisleLines} lineWidth={1.5} transparent opacity={0.5} dashed dashSize={0.5} gapSize={0.3} />
-          <Line points={[[0, ZONE_Y + 0.006, aisle.cz + aisle.depth / 2], [50, ZONE_Y + 0.006, aisle.cz + aisle.depth / 2]]} color={COLORS.aisleLines} lineWidth={1.5} transparent opacity={0.5} dashed dashSize={0.5} gapSize={0.3} />
+          <Line points={[[ZONE_B.xMin, ZONE_Y + 0.006, aisle.cz - aisle.depth / 2], [ZONE_B.xMax, ZONE_Y + 0.006, aisle.cz - aisle.depth / 2]]} color={COLORS.aisleLines} lineWidth={1.5} transparent opacity={0.5} dashed dashSize={0.5} gapSize={0.3} />
+          <Line points={[[ZONE_B.xMin, ZONE_Y + 0.006, aisle.cz + aisle.depth / 2], [ZONE_B.xMax, ZONE_Y + 0.006, aisle.cz + aisle.depth / 2]]} color={COLORS.aisleLines} lineWidth={1.5} transparent opacity={0.5} dashed dashSize={0.5} gapSize={0.3} />
         </group>
       ))}
     </group>
@@ -314,6 +318,59 @@ function PullZones({ is2D }) {
   );
 }
 
+function StagingLaneMarkings({ is2D }) {
+  const lanes = [
+    { x: 57, z: 22, label: 'L1' }, { x: 57, z: 25, label: 'L2' }, { x: 57, z: 28, label: 'L3' },
+    { x: 57, z: 32, label: 'L4' }, { x: 57, z: 35, label: 'L5' }, { x: 57, z: 38, label: 'L6' },
+  ];
+
+  return (
+    <group>
+      {lanes.map((l, i) => (
+        <group key={i}>
+          <Line 
+            points={[[l.x - 1.5, ZONE_Y + 0.01, l.z - 1.2], [l.x + 1.5, ZONE_Y + 0.01, l.z - 1.2], [l.x + 1.5, ZONE_Y + 0.01, l.z + 1.2], [l.x - 1.5, ZONE_Y + 0.01, l.z + 1.2], [l.x - 1.5, ZONE_Y + 0.01, l.z - 1.2]]} 
+            color="#ffffff" lineWidth={1} transparent opacity={0.5} 
+          />
+          {is2D && (
+            <Text position={[l.x, ZONE_Y + 0.02, l.z]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.8} color="#fff">
+              {l.label}
+            </Text>
+          )}
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function NoParkingZones({ is2D }) {
+  const zones = [
+    { x: 50, z: 25, w: 2, d: 10 }, // Path to Office
+    { x: 5, z: 45, w: 10, d: 2 },  // Battery entrance
+  ];
+
+  return (
+    <group>
+      {zones.map((z, i) => (
+        <group key={i} position={[z.x, ZONE_Y + 0.01, z.z]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[z.w, z.d]} />
+            <meshBasicMaterial color="#ef4444" transparent opacity={0.1} />
+          </mesh>
+          {/* Diagonal stripes */}
+          {Array.from({ length: 5 }).map((_, j) => (
+            <Line 
+              key={j} 
+              points={[[-z.w/2 + j*(z.w/4), 0, -z.d/2], [z.w/2, 0, z.d/2 - j*(z.d/4)]]} 
+              color="#ef4444" lineWidth={1.5} transparent opacity={0.4} 
+            />
+          ))}
+        </group>
+      ))}
+    </group>
+  );
+}
+
 function RomanaMarkings({ is2D }) {
   const cx = ROMANA_X;
   const cz = ROMANA_Z;
@@ -368,6 +425,8 @@ export default function FloorMarkings() {
       <PedestrianZone is2D={is2D} />
       <AisleCorridors is2D={is2D} />
       <PullZones is2D={is2D} />
+      <StagingLaneMarkings is2D={is2D} />
+      <NoParkingZones is2D={is2D} />
     </group>
   );
 }

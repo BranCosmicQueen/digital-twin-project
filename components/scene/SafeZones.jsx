@@ -52,34 +52,6 @@ export default function SafeZones() {
         </mesh>
       </group>
 
-      {/* 2. Sistema de Agua Contra Incendio (NFPA) */}
-      <group position={[5, 0, 5]}>
-        {/* Estanque de Agua (Cilindro Azul) */}
-        <mesh 
-          position={[0, 4, 0]} 
-          castShadow
-          onPointerOver={(e) => {
-            e.stopPropagation();
-            if (is2D) setHoveredItem('ESTANQUE DE RESERVA DE AGUA CONTRA INCENDIO (NFPA)');
-          }}
-        >
-          <cylinderGeometry args={[3, 3, 8, 24]} />
-          <meshStandardMaterial color="#1e40af" metalness={0.4} roughness={0.3} />
-        </mesh>
-        {/* Sala de Bombas */}
-        <group
-          onPointerOver={(e) => {
-            e.stopPropagation();
-            if (is2D) setHoveredItem('SALA DE BOMBAS DE INCENDIO (RED HÚMEDA)');
-          }}
-        >
-          <Building 
-            pos={[5, 0, 0]} 
-            size={[4, 3.5, 5]} 
-            color="#cbd5e1" 
-          />
-        </group>
-      </group>
     </group>
   );
 }

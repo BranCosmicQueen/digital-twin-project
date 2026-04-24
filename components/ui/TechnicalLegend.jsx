@@ -15,16 +15,19 @@ export default function TechnicalLegend() {
     { color: '#FBC02D', label: 'Zona B - Selectivo Doble Prof.' },
     { color: '#ef4444', label: 'Zona C - Selectivo Estándar' },
     { color: '#ef4444', label: 'Zona DS 43 - Inflamables' },
+    { color: '#991b1b', label: 'Zona DS 148 - RESPEL' },
     { color: '#FDE68A', label: 'Zona Carga Baterías' },
     { color: '#0ea5e9', label: 'Zona de Espera (Pull Zone)' },
-    { color: '#93C5FD', label: 'Área de Recepción (Inbound)' },
-    { color: '#86EFAC', label: 'Área de Despacho (Outbound)' },
+    { color: '#94a3b8', label: 'Picking / Consolidación' },
+    { color: '#f8fafc', label: 'Administración y Servicios' },
   ];
 
   const symbols = [
     { color: '#ef4444', label: 'Extintor / Red Húmeda' },
+    { color: '#166534', label: 'Salida de Emergencia' },
     { color: '#22c55e', label: 'Ducha / Lavaojos' },
     { color: '#facc15', label: 'Kit Antiderrame' },
+    { color: '#b91c1c', label: 'Señal de Peligro' },
     { color: '#333', label: 'Muro Cortafuego RF-120' },
   ];
 

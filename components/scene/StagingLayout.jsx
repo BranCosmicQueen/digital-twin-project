@@ -54,21 +54,19 @@ export default function StagingLayout() {
 
     const y = BODEGA_ELEVATION + (PALLET_H / 2) + 0.02;
 
-    // INBOUND (Sincronizado con constants)
+    // INBOUND (Sincronizado con constants: 56 a 60)
     const inB = STAGING_INBOUND;
-    for (let x = inB.xMin + 0.5; x <= inB.xMax - 1; x += 2.5) {
+    for (let x = inB.xMin + 0.6; x <= inB.xMax - 1.5; x += 2.0) {
       for (let z = inB.zMin + 2; z <= inB.zMax - 2; z += 3) {
         data.inbound.push([x, y, z]);
-        data.inbound.push([x + 1.1, y, z]);
       }
     }
 
-    // OUTBOUND (Sincronizado con constants)
+    // OUTBOUND (Sincronizado con constants: 56 a 60)
     const outB = STAGING_OUTBOUND;
-    for (let x = outB.xMin + 0.5; x <= outB.xMax - 1; x += 2.5) {
+    for (let x = outB.xMin + 0.6; x <= outB.xMax - 1.5; x += 2.0) {
       for (let z = outB.zMin + 2; z <= outB.zMax - 2; z += 3) {
         data.outbound.push([x, y, z]);
-        data.outbound.push([x + 1.1, y, z]);
       }
     }
 

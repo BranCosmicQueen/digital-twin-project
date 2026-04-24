@@ -4,7 +4,8 @@ import { Text } from '@react-three/drei';
 import {
   RESPEL_CENTER_X,
   RESPEL_CENTER_Z,
-  RESPEL_SIZE,
+  RESPEL_SIZE_X,
+  RESPEL_SIZE_Z,
   COLORS,
 } from '@/lib/constants';
 
@@ -15,8 +16,8 @@ export default function RespelZone() {
   const is2D = useSimStore(s => s.viewMode === '2d');
   const wallH = 3;
   const wallT = 0.2;
-  const halfW = RESPEL_SIZE / 2;  // 5
-  const halfD = RESPEL_SIZE / 2;  // 5
+  const halfW = RESPEL_SIZE_X / 2;
+  const halfD = RESPEL_SIZE_Z / 2;
 
 
   return (
@@ -32,40 +33,40 @@ export default function RespelZone() {
           if (is2D) setHoveredItem('ZONA RESPEL — ALMACENAMIENTO DE RESIDUOS PELIGROSOS');
         }}
       >
-        <boxGeometry args={[RESPEL_SIZE, 3, RESPEL_SIZE]} />
+        <boxGeometry args={[RESPEL_SIZE_X, 3, RESPEL_SIZE_Z]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
       {/* Floor slab */}
       <mesh position={[0, 0.08, 0]} receiveShadow>
-        <boxGeometry args={[RESPEL_SIZE, 0.16, RESPEL_SIZE]} />
+        <boxGeometry args={[RESPEL_SIZE_X, 0.16, RESPEL_SIZE_Z]} />
         <meshStandardMaterial color={COLORS.respelFloor} roughness={0.7} />
       </mesh>
 
       {/* Muros Cortafuego perimetrales RF-180 (DS 148 EXCEPCIÓN) */}
       {/* North Wall */}
       <mesh position={[0, wallH / 2, -halfD]}>
-        <boxGeometry args={[RESPEL_SIZE, wallH, wallT]} />
+        <boxGeometry args={[RESPEL_SIZE_X, wallH, wallT]} />
         <meshStandardMaterial color="#b91c1c" roughness={0.9} /> {/* Rojo oscuro RF-180 */}
       </mesh>
       {/* South Wall */}
       <mesh position={[0, wallH / 2, halfD]}>
-        <boxGeometry args={[RESPEL_SIZE, wallH, wallT]} />
+        <boxGeometry args={[RESPEL_SIZE_X, wallH, wallT]} />
         <meshStandardMaterial color="#b91c1c" roughness={0.9} />
       </mesh>
       {/* West Wall */}
       <mesh position={[-halfW, wallH / 2, 0]}>
-        <boxGeometry args={[wallT, wallH, RESPEL_SIZE]} />
+        <boxGeometry args={[wallT, wallH, RESPEL_SIZE_Z]} />
         <meshStandardMaterial color="#b91c1c" roughness={0.9} />
       </mesh>
       {/* East Wall */}
       <mesh position={[halfW, wallH / 2, 0]}>
-        <boxGeometry args={[wallT, wallH, RESPEL_SIZE]} />
+        <boxGeometry args={[wallT, wallH, RESPEL_SIZE_Z]} />
         <meshStandardMaterial color="#b91c1c" roughness={0.9} />
       </mesh>
 
       {/* Roof */}
       <mesh position={[0, wallH, 0]}>
-        <boxGeometry args={[RESPEL_SIZE, 0.2, RESPEL_SIZE]} />
+        <boxGeometry args={[RESPEL_SIZE_X, 0.2, RESPEL_SIZE_Z]} />
         <meshStandardMaterial color="#b91c1c" transparent opacity={0.6} roughness={0.4} />
       </mesh>
 

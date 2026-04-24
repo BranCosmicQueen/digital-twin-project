@@ -15,6 +15,7 @@ import YardSafety from './YardSafety';
 import FloorPlanAnnotations from './FloorPlanAnnotations';
 import Gates from './Gates';
 import Truck from './Truck';
+import AnimatedWorker from './AnimatedWorker';
 import FloorMarkings from './FloorMarkings';
 import BoundarySensors from './BoundarySensors';
 import SimulationManager from './SimulationManager';
@@ -34,7 +35,7 @@ function SceneBackground() {
 
 // Helpers to connect Store with Scene
 function SimulationTruck() {
-  const { truckVisible, truckPosition, truckRotation, truckColor, truckStatus, truckSteeringAngle } = useSimulationStore();
+  const { truckVisible, truckPosition, truckRotation, truckColor, truckStatus, truckSteeringAngle, truckDoorsOpen } = useSimulationStore();
   if (!truckVisible) return null;
   return (
     <Truck 
@@ -43,6 +44,19 @@ function SimulationTruck() {
       color={truckColor} 
       status={truckStatus}
       steeringAngle={truckSteeringAngle}
+      doorsOpen={truckDoorsOpen}
+    />
+  );
+}
+
+function SimulationWorker() {
+  const { workerVisible, workerPosition, workerRotation, workerCarrying } = useSimulationStore();
+  if (!workerVisible) return null;
+  return (
+    <AnimatedWorker 
+      position={workerPosition} 
+      rotation={workerRotation}
+      isCarrying={workerCarrying}
     />
   );
 }
@@ -54,8 +68,8 @@ function GatesContainer() {
   useLayoutEffect(() => {
     if (entryRef.current) {
       gsap.to(entryRef.current.position, {
-        y: gateEntryOpen ? 5 + 3 : 5,
-        duration: 1,
+        z: gateEntryOpen ? 10 : 0, // Desliza 10m para abrir
+        duration: 2,
         ease: 'power2.inOut'
       });
     }
@@ -102,6 +116,7 @@ export default function Scene() {
         <GatesContainer />
         <BoundarySensors />
         <SimulationTruck />
+        <SimulationWorker />
       </Suspense>
     </Canvas>
   );

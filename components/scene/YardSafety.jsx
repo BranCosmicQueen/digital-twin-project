@@ -5,20 +5,23 @@ import * as THREE from 'three';
 
 export default function YardSafety() {
   const hydrants = useMemo(() => [
-    [65, 0, 5],
-    [95, 0, 5],
-    [65, 0, 45],
-    [95, 0, 45],
+    [62, 0, 2],   // Esquina Nor-Oeste Patio
+    [98, 0, 2],   // Esquina Nor-Este Patio
+    [62, 0, 48],  // Esquina Sur-Oeste Patio
+    [98, 0, 48],  // Esquina Sur-Este Patio
   ], []);
 
   const foamMonitors = useMemo(() => [
-    [75, 0, 15],
-    [75, 0, 35],
+    [62, 0, 15],  // Perímetro Bodega
+    [62, 0, 35],  // Perímetro Bodega
+    [98, 0, 15],  // Perímetro Reja
+    [98, 0, 35],  // Perímetro Reja
   ], []);
 
   const groundingMarks = useMemo(() => [
-    [85, 0.02, 20],
-    [85, 0.02, 30],
+    [62, 0.02, 20], // Perímetro Bodega
+    [62, 0.02, 30], // Perímetro Bodega
+    [98, 0.02, 25], // Perímetro Reja
   ], []);
 
   return (
