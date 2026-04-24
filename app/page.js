@@ -6,6 +6,7 @@ import useSimStore from '@/store/useSimStore';
 
 import FloatingControls from '@/components/ui/FloatingControls';
 import TechnicalLegend from '@/components/ui/TechnicalLegend';
+import HoverTooltip from '@/components/ui/HoverTooltip';
 const Scene = dynamic(() => import('@/components/scene/Scene'), { ssr: false });
 
 const keyboardMap = [
@@ -22,6 +23,7 @@ export default function Home() {
     <main className="relative w-screen h-screen overflow-hidden" style={{ background: '#F3F4F6' }}>
       <KeyboardControls map={keyboardMap}>
         <Scene />
+        <HoverTooltip />
       </KeyboardControls>
 
       {/* Unified minimalist controls (Google Maps Style) */}

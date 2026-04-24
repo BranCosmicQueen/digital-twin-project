@@ -237,9 +237,15 @@ function PedestrianZone({ is2D }) {
     );
   }
 
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+
   return (
-    <group>
-      <mesh position={[cx, ZONE_Y + 0.002, cz]} rotation={[-Math.PI / 2, 0, 0]}>
+    <group onPointerOut={() => setHoveredItem(null)}>
+      <mesh 
+        position={[cx, ZONE_Y + 0.002, cz]} 
+        rotation={[-Math.PI / 2, 0, 0]}
+        onPointerOver={() => is2D && setHoveredItem('ZONA PEATONAL / SALIDA DE EMERGENCIA')}
+      >
         <planeGeometry args={[width, depth]} />
         <meshBasicMaterial color="#eab308" transparent opacity={0.1} />
       </mesh>
@@ -250,10 +256,15 @@ function PedestrianZone({ is2D }) {
 }
 
 function SacredCircle({ is2D }) {
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
   return (
-    <group>
+    <group onPointerOut={() => setHoveredItem(null)}>
       {/* Highlighted Sacred Mutex Circle */}
-      <mesh position={[PATIO_CENTER_X, 0.015, PATIO_CENTER_Z]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh 
+        position={[PATIO_CENTER_X, 0.015, PATIO_CENTER_Z]} 
+        rotation={[-Math.PI / 2, 0, 0]}
+        onPointerOver={() => is2D && setHoveredItem('RADIO DE GIRO REGLAMENTARIO (25m)')}
+      >
         <ringGeometry args={[TURNING_RADIUS - 0.2, TURNING_RADIUS, 64]} />
         <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
       </mesh>
@@ -267,17 +278,24 @@ function SacredCircle({ is2D }) {
 
 function PullZones({ is2D }) {
   const zones = [PULL_ZONE_NORTH, PULL_ZONE_SOUTH];
-  const width = 30; // X from 65 to 95
-  const cx = 80;
+  const width = 20; // Ajustado para evitar tope con Canaleta API (X:60) y RESPEL (X:90)
+  const cx = 75;    // Posición segura: X=65 a X=85
 
   return (
-    <group>
+    <group onPointerOut={() => setHoveredItem(null)}>
       {zones.map((z, i) => {
         const depth = z.zMax - z.zMin;
         const cz = z.zMin + depth / 2;
         return (
           <group key={`pull-${i}`}>
-            <mesh position={[cx, 0.02, cz]} rotation={[-Math.PI / 2, 0, 0]}>
+            <mesh 
+              position={[cx, 0.02, cz]} 
+              rotation={[-Math.PI / 2, 0, 0]}
+              onPointerOver={(e) => {
+                e.stopPropagation();
+                if (is2D) setHoveredItem(`ZONA DE ESPERA CAMIONES (PULL ZONE ${i === 0 ? 'NORTE' : 'SUR'})`);
+              }}
+            >
               <planeGeometry args={[width, depth]} />
               <meshBasicMaterial color={z.color} transparent opacity={0.15} side={THREE.DoubleSide} />
             </mesh>
@@ -300,9 +318,23 @@ function RomanaMarkings({ is2D }) {
   const cz = ROMANA_Z;
   const halfW = ROMANA_WIDTH / 2;
   const halfD = ROMANA_DEPTH / 2;
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
 
   return (
-    <group>
+    <group onPointerOut={() => setHoveredItem(null)}>
+      {/* Hitbox para Hover Romana */}
+      <mesh 
+        position={[cx, 0.05, cz]} 
+        rotation={[-Math.PI / 2, 0, 0]}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          if (is2D) setHoveredItem('ROMANA DE PESAJE CERTIFICADA');
+        }}
+      >
+        <planeGeometry args={[ROMANA_WIDTH + 1, ROMANA_DEPTH + 1]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
       {/* Perimeter safety lines around the weighbridge */}
       <Line
         points={[
@@ -332,6 +364,9 @@ export default function FloorMarkings() {
       <GeneralTexts is2D={is2D} />
       <SacredCircle is2D={is2D} />
       <RomanaMarkings is2D={is2D} />
+      <PedestrianZone is2D={is2D} />
+      <AisleCorridors is2D={is2D} />
+      <PullZones is2D={is2D} />
     </group>
   );
 }

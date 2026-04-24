@@ -16,12 +16,14 @@ export default function TechnicalLegend() {
     { color: '#ef4444', label: 'Zona C - Selectivo Estándar' },
     { color: '#ef4444', label: 'Zona DS 43 - Inflamables' },
     { color: '#FDE68A', label: 'Zona Carga Baterías' },
+    { color: '#0ea5e9', label: 'Zona de Espera (Pull Zone)' },
+    { color: '#93C5FD', label: 'Área de Recepción (Inbound)' },
+    { color: '#86EFAC', label: 'Área de Despacho (Outbound)' },
   ];
 
   const symbols = [
     { color: '#ef4444', label: 'Extintor / Red Húmeda' },
     { color: '#22c55e', label: 'Ducha / Lavaojos' },
-    { color: '#3b82f6', label: 'Drenaje API / Canaleta' },
     { color: '#facc15', label: 'Kit Antiderrame' },
     { color: '#333', label: 'Muro Cortafuego RF-120' },
   ];

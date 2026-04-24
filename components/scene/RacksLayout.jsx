@@ -2,13 +2,18 @@
 
 import { useMemo, useRef, useLayoutEffect } from 'react';
 import * as THREE from 'three';
+import useSimStore from '@/store/useSimStore';
 import { 
   RACK_WIDTH, 
   RACK_DEPTH, 
   BODEGA_ELEVATION, 
   DS43_ZONE, 
   DS43_BUFFER, 
-  PEDESTRIAN_ZONE_Z_START 
+  PEDESTRIAN_ZONE_Z_START,
+  ZONE_A,
+  ZONE_B,
+  ZONE_C,
+  LEVELS
 } from '@/lib/constants';
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -28,7 +33,6 @@ const ROLLER_WIDTH = 1.35;
 // Estructura Selectiva
 const POST_W = 0.12; 
 const BEAM_H = 0.15; 
-const LEVELS = [0.15, 2.35, 4.55, 6.75, 8.95, 11.0]; 
 
 // Dimensiones Pallet Real
 const PALLET_W = 1.0; 
@@ -249,8 +253,8 @@ export default function RacksLayout() {
     };
     const postY = BODEGA_ELEVATION + RACK_HEIGHT / 2;
 
-    // --- 1. ZONA C VERTICAL (Edge aligned, 3m Gap to B) ---
-    const verticalX = [1.45, 4.45]; 
+    // --- 1. ZONA C VERTICAL (Dual Double-Deep with Central Aisle) ---
+    const verticalX = [1.4, 6.8]; 
     const vZCenters = [];
     for (let i = 0; i < 11; i++) {
       const cz = 11.45 + i * 3.0; // 10.0 + (2.9 / 2)
@@ -265,17 +269,19 @@ export default function RacksLayout() {
           const by = BODEGA_ELEVATION + levelY;
           data.selBeamsC.push([cx - 1.1, by, cz], [cx - 0.2, by, cz], [cx + 0.2, by, cz], [cx + 1.1, by, cz]);
           if (levelY >= 11.0) return;
-          // Doble Profundidad: 2 pallets por lado del rack (Total 4 por cuerpo por nivel)
+          // Doble Profundidad Real (Vertical): 2 ancho (Z) x 2 fondo (X)
+          const offW = 0.72; // Ancho (eje Z)
+          const offD = 0.62; // Fondo (eje X)
           data.palletsCVert.push(
-            [cx, by + 0.1, cz - 0.9], [cx, by + 0.1, cz - 0.3],
-            [cx, by + 0.1, cz + 0.3], [cx, by + 0.1, cz + 0.9]
+            [cx - offD, by + 0.1, cz - offW], [cx - offD, by + 0.1, cz + offW],
+            [cx + offD, by + 0.1, cz - offW], [cx + offD, by + 0.1, cz + offW]
           );
         });
       });
     });
 
-    // --- 2. ZONA B HORIZONTAL (3m Gap between C and A) ---
-    const startHorizontalX = 10.45; 
+    // --- 2. ZONA B HORIZONTAL (Shifted for Zone C Aisle) ---
+    const startHorizontalX = 12.45; 
     const cXB = [];
     for (let i = 0; i < 9; i++) cXB.push(startHorizontalX + i * 3.0); 
     HORIZONTAL_Z_CENTERS_B.forEach((cz) => {
@@ -287,16 +293,18 @@ export default function RacksLayout() {
           const by = BODEGA_ELEVATION + levelY;
           data.selBeamsB.push([cx, by, cz - 1.1], [cx, by, cz - 0.2], [cx, by, cz + 0.2], [cx, by, cz + 1.1]);
           if (levelY >= 11.0) return;
-          // Doble Profundidad: 2 pallets de fondo (Total 4 por cuerpo por nivel)
+          // Doble Profundidad Real: 2 de ancho x 2 de fondo
+          const offX = 0.72; // Separación lateral entre pallets
+          const offZ = 0.62; // Separación fondo (chimenea)
           data.palletsB.push(
-            [cx - 0.9, by + 0.1, cz], [cx - 0.3, by + 0.1, cz],
-            [cx + 0.3, by + 0.1, cz], [cx + 0.9, by + 0.1, cz]
+            [cx - offX, by + 0.1, cz - offZ], [cx + offX, by + 0.1, cz - offZ],
+            [cx - offX, by + 0.1, cz + offZ], [cx + offX, by + 0.1, cz + offZ]
           );
         });
       });
     });
 
-    const startAX = 40.35; 
+    const startAX = 42.35; 
     const cXA = [];
     for (let i = 0; i < 4; i++) cXA.push(startAX + i * 3.0); 
     const startZA = 10.0;
@@ -308,7 +316,8 @@ export default function RacksLayout() {
         [cx - RACK_WIDTH / 2, cx + RACK_WIDTH / 2].forEach(px => data.dynPosts.push([px, postY, cz]));
       });
       LEVELS.forEach((levelY) => {
-        const by = BODEGA_ELEVATION + levelY;
+        const DYN_Y_OFFSET = 0.6; // Elevación para que el punto más bajo no atraviese el suelo
+        const by = BODEGA_ELEVATION + levelY + DYN_Y_OFFSET;
         data.dynRails.push([cx - 0.75, by, zC], [cx + 0.75, by, zC]);
         for (let z = startZA; z <= startZA + bLen; z += ROLLER_SPACING) {
           const zOff = z - zC;
@@ -333,8 +342,36 @@ export default function RacksLayout() {
     return data;
   }, []);
 
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+  const viewMode = useSimStore(s => s.viewMode);
+  const is2D = viewMode === '2d';
+
+  const handleHover = (name) => {
+    if (is2D) setHoveredItem(name);
+  };
+
+  const handleOut = () => {
+    setHoveredItem(null);
+  };
+
   return (
     <group>
+      {/* Hitboxes for Zones (Solid planes above floor level) */}
+      {[ZONE_A, ZONE_B, ZONE_C].map((z, i) => (
+        <mesh 
+          key={`hitbox-${i}`}
+          position={[(z.xMin + z.xMax)/2, BODEGA_ELEVATION + 0.3, (z.zMin + z.zMax)/2]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            handleHover(z.label);
+          }}
+        >
+          <planeGeometry args={[z.xMax - z.xMin, z.zMax - z.zMin]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+      ))}
+
       <InstancedSelectivePosts positions={layoutData.selPosts} />
       <InstancedSelectiveBeams color="#ef4444" positions={layoutData.selBeamsC} rotY={Math.PI / 2} />
       <InstancedSelectiveBeams color="#FBC02D" positions={layoutData.selBeamsB} />

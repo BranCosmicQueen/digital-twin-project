@@ -121,13 +121,20 @@ function GhostCeiling() {
 
 function DS43FlammableZoneWalls() {
   const zone = DS43_ZONE;
-  const h = 3.0; 
+  const w = zone.xMax - zone.xMin;
+  const d = zone.zMax - zone.zMin;
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+  const is2D = useSimStore(s => s.viewMode === '2d');
 
   return (
-    <group>
-      {/* Floor Pattern (Translucent red/blue) */}
-      <mesh position={[10, BODEGA_ELEVATION + 0.02, 1.5]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[20, 3]} />
+    <group onPointerOut={() => setHoveredItem(null)}>
+      {/* Floor Pattern (Translucent red) */}
+      <mesh 
+        position={[(zone.xMin + zone.xMax) / 2, BODEGA_ELEVATION + 0.02, (zone.zMin + zone.zMax) / 2]} 
+        rotation={[-Math.PI / 2, 0, 0]}
+        onPointerOver={() => is2D && setHoveredItem('ZONA DS43 — INFLAMABLES')}
+      >
+        <planeGeometry args={[w, d]} />
         <meshStandardMaterial color="#ef4444" transparent opacity={0.3} />
       </mesh>
     </group>
@@ -169,19 +176,6 @@ function InternalBerm() {
   );
 }
 
-function BatteryWall() {
-  const h = 3.0;
-  const x = 10;
-  const zStart = 40;
-  const zEnd = 50;
-  
-  return (
-    <mesh position={[x, BODEGA_ELEVATION + h / 2, (zStart + zEnd) / 2]}>
-      <boxGeometry args={[0.15, h, zEnd - zStart]} />
-      <meshStandardMaterial color="#f1f5f9" />
-    </mesh>
-  );
-}
 
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -194,9 +188,18 @@ function AdministrationOffice({ is2D }) {
   const height = 3.5;
   const cx = 50 + width / 2;
   const cz = 0 + depth / 2;
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
 
   return (
-    <group position={[cx, BODEGA_ELEVATION, cz]}>
+    <group position={[cx, BODEGA_ELEVATION, cz]} onPointerOut={() => setHoveredItem(null)}>
+      {/* Hitbox for hover */}
+      <mesh 
+        position={[0, height/2, 0]}
+        onPointerOver={() => is2D && setHoveredItem('ADMINISTRACIÓN / OFICINA')}
+      >
+        <boxGeometry args={[width, height, depth]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
       {/* 1. Glass Structure (Open look) */}
       {/* Floor */}
       <mesh position={[0, 0.01, 0]}>
@@ -340,12 +343,20 @@ export default function Warehouse() {
       {/* DS43 Firewall and Zone */}
       <DS43FlammableZoneWalls />
 
-      {/* Battery RF-60 Wall */}
-      <BatteryWall />
 
       {/* Administration & Safety */}
       <AdministrationOffice is2D={is2D} />
       <EmergencySystems />
+
+      {/* Global Background Clearance (Lowest priority, clears labels) */}
+      <mesh 
+        position={[50, BODEGA_ELEVATION + 0.005, 25]} 
+        rotation={[-Math.PI / 2, 0, 0]}
+        onPointerOver={() => setHoveredItem(null)}
+      >
+        <planeGeometry args={[150, 100]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
     </group>
   );
 }

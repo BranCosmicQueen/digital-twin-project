@@ -5,6 +5,9 @@ const useSimStore = create((set, get) => ({
   viewMode: '2d',
   isAnimating: false,
   uiVisible: true,
+  hoveredItem: null,
+
+  setHoveredItem: (name) => set({ hoveredItem: name }),
 
   toggleView: () => {
     const current = get();

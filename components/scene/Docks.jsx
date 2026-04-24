@@ -14,12 +14,16 @@ import {
   COLORS,
 } from '@/lib/constants';
 
+import useSimStore from '@/store/useSimStore';
+
 const docks = [
-  { z: DOCK_CARGA_Z, type: 'outbound' },
-  { z: DOCK_DESCARGA_Z, type: 'inbound' },
+  { z: DOCK_CARGA_Z, type: 'outbound', label: 'MUELLE DE CARGA / DESPACHO' },
+  { z: DOCK_DESCARGA_Z, type: 'inbound', label: 'MUELLE DE DESCARGA / RECEPCIÓN' },
 ];
 
 export default function Docks() {
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+  const is2D = useSimStore(s => s.viewMode === '2d');
   return (
     <group>
       {docks.map((dock, i) => {
@@ -38,6 +42,11 @@ export default function Docks() {
               ]}
               castShadow
               receiveShadow
+              onPointerOver={(e) => {
+                e.stopPropagation();
+                if (is2D) setHoveredItem(dock.label);
+              }}
+              onPointerOut={() => setHoveredItem(null)}
             >
               <boxGeometry args={[DOCK_DEPTH, BODEGA_ELEVATION, DOCK_WIDTH]} />
               <meshStandardMaterial color={color} roughness={0.6} />
@@ -97,7 +106,14 @@ export default function Docks() {
       })}
 
       {/* Exterior Emergency Shower */}
-      <group position={[62, 0, 40]}>
+      <group 
+        position={[62, 0, 40]}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          if (is2D) setHoveredItem('DUCHA DE EMERGENCIA Y LAVAOJOS (DS 594)');
+        }}
+        onPointerOut={() => setHoveredItem(null)}
+      >
         <mesh position={[0, 1.25, 0]}>
           <cylinderGeometry args={[0.05, 0.05, 2.5]} />
           <meshStandardMaterial color="#22c55e" />

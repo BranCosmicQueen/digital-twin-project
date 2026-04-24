@@ -11,16 +11,34 @@ import {
   GUARDHOUSE_DEPTH
 } from '@/lib/constants';
 
+import useSimStore from '@/store/useSimStore';
+
 const GATE_HEIGHT = 5;
 const POST_RADIUS = 0.2;
 
 export default function Gates({ inboundGateRef }) {
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+  const is2D = useSimStore(s => s.viewMode === '2d');
   const halfW = GATE_WIDTH / 2;
 
   return (
     <group>
       {/* ── Main Access Gate ── */}
-      <group position={[GATE_X, 0, GATE_MAIN_Z]}>
+      <group 
+        position={[GATE_X, 0, GATE_MAIN_Z]}
+        onPointerOut={() => setHoveredItem(null)}
+      >
+        {/* Hitbox para Hover Portón */}
+        <mesh 
+          position={[0, 2.5, 0]}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            if (is2D) setHoveredItem('ACCESO PRINCIPAL ESMAX / PORTÓN');
+          }}
+        >
+          <boxGeometry args={[1, 5, GATE_WIDTH]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
         {/* Posts */}
         <mesh position={[0, GATE_HEIGHT / 2, -halfW]} castShadow>
           <cylinderGeometry args={[POST_RADIUS, POST_RADIUS, GATE_HEIGHT, 8]} />
@@ -63,7 +81,21 @@ export default function Gates({ inboundGateRef }) {
       </group>
 
       {/* ── Admin Block (Bloque Administrativo y Servicios) ── */}
-      <group position={[GUARDHOUSE_X - GUARDHOUSE_WIDTH / 2, 0, GUARDHOUSE_Z]}>
+      <group 
+        position={[GUARDHOUSE_X - GUARDHOUSE_WIDTH / 2, 0, GUARDHOUSE_Z]}
+        onPointerOut={() => setHoveredItem(null)}
+      >
+        {/* Hitbox para Hover Caseta */}
+        <mesh 
+          position={[0, 1.75, 0]}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            if (is2D) setHoveredItem('CASETA DE SEGURIDAD Y CONTROL DE ACCESO');
+          }}
+        >
+          <boxGeometry args={[GUARDHOUSE_WIDTH, 3.5, GUARDHOUSE_DEPTH]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
         {/* Main cabin structure */}
         <mesh position={[0, 1.75, 0]} castShadow>
           <boxGeometry args={[GUARDHOUSE_WIDTH, 3.5, GUARDHOUSE_DEPTH]} />

@@ -8,7 +8,11 @@ import {
   COLORS,
 } from '@/lib/constants';
 
+import useSimStore from '@/store/useSimStore';
+
 export default function RespelZone() {
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+  const is2D = useSimStore(s => s.viewMode === '2d');
   const wallH = 3;
   const wallT = 0.2;
   const halfW = RESPEL_SIZE / 2;  // 5
@@ -16,7 +20,21 @@ export default function RespelZone() {
 
 
   return (
-    <group position={[RESPEL_CENTER_X, 0, RESPEL_CENTER_Z]}>
+    <group 
+      position={[RESPEL_CENTER_X, 0, RESPEL_CENTER_Z]}
+      onPointerOut={() => setHoveredItem(null)}
+    >
+      {/* Hitbox para Hover RESPEL */}
+      <mesh 
+        position={[0, 1.5, 0]}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          if (is2D) setHoveredItem('ZONA RESPEL — ALMACENAMIENTO DE RESIDUOS PELIGROSOS');
+        }}
+      >
+        <boxGeometry args={[RESPEL_SIZE, 3, RESPEL_SIZE]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
       {/* Floor slab */}
       <mesh position={[0, 0.08, 0]} receiveShadow>
         <boxGeometry args={[RESPEL_SIZE, 0.16, RESPEL_SIZE]} />

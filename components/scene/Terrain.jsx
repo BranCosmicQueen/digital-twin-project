@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import useSimStore from '@/store/useSimStore';
 import {
   TERRAIN_WIDTH,
   TERRAIN_DEPTH,
@@ -81,8 +82,11 @@ export default function Terrain() {
   const gateZStart = GATE_MAIN_Z - GATE_WIDTH / 2;
   const gateZEnd = GATE_MAIN_Z + GATE_WIDTH / 2;
 
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+  const is2D = useSimStore(s => s.viewMode === '2d');
+
   return (
-    <group>
+    <group onPointerOut={() => setHoveredItem(null)}>
       {/* ── Main ground plane ── */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
@@ -144,18 +148,6 @@ export default function Terrain() {
       <mesh position={[GATE_X, 0.05, gateZEnd + (TERRAIN_DEPTH - gateZEnd) / 2]}>
         <boxGeometry args={[0.15, 0.1, TERRAIN_DEPTH - gateZEnd]} />
         <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={0.2} />
-      </mesh>
-
-      {/* ── Body/Patio divider line at X=60 (API Canaleta) ── */}
-      <mesh position={[PATIO_X_START, 0.03, TERRAIN_DEPTH / 2]}>
-        <boxGeometry args={[0.2, 0.06, TERRAIN_DEPTH]} />
-        <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={0.3} />
-      </mesh>
-
-      {/* CÁMARA SEPARADORA API */}
-      <mesh position={[95, 0.1, 45]}>
-        <boxGeometry args={[2, 0.2, 2]} />
-        <meshStandardMaterial color="#475569" />
       </mesh>
 
       {/* ── Turning radius circle restored per requirement ── */}
