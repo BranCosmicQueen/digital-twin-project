@@ -12,23 +12,19 @@ import {
 } from '@/lib/constants';
 
 // ══════════════════════════════════════════════════════════════════════════════
-// CONFIGURACIÓN DEL LAYOUT (2,500+ Posiciones, Normativa Altura)
+// CONFIGURACIÓN DEL LAYOUT (2,500+ Posiciones, Zona C Encastrada)
 // ══════════════════════════════════════════════════════════════════════════════
 
 // 8 líneas organizadas en 4 baterías dobles con pasillos de 3.2m
 const LINE_Z_CENTERS = [11.2, 13.6, 19.2, 21.6, 27.2, 29.6, 35.2, 37.6];
 
 const NUM_BODIES = 16;
-// Estructura a 11 metros exactos (Cumple < 11m y permite > 60cm de holgura con techo de 12m)
 const RACK_HEIGHT = 11.0; 
 
 // Dimensiones Estructurales
 const POST_W = 0.12; 
 const BEAM_H = 0.15; 
 const BEAM_D = 0.08; 
-
-// Niveles ajustados para que el nivel 5 de carga permita holgura de 70-75cm al techo
-// El nivel 6 es puramente estructural (viga de cierre)
 const LEVELS = [0.15, 2.35, 4.55, 6.75, 8.95, 11.0]; 
 
 // Colores Normativos
@@ -201,11 +197,22 @@ export default function RacksLayout() {
 
     const halfDepth = RACK_DEPTH / 2;
 
-    // --- COORDENADAS X (16 cuerpos con gaps de 3m entre zonas) ---
+    // --- COORDENADAS X (16 cuerpos con Zone C encastrada) ---
     const centersX = [];
-    for (let i = 0; i < 6; i++) centersX.push(6 + i * 3.0); // C
-    for (let i = 0; i < 6; i++) centersX.push(27 + i * 3.0); // B
-    for (let i = 0; i < 4; i++) centersX.push(48 + i * 3.0); // A
+    
+    // Zona C (Baja): 2 cuerpos encastrados al muro Oeste (X=0)
+    // El primer centro en 1.45 deja el borde del rack en 0.
+    centersX.push(1.45, 4.45);
+    
+    // Zona B (Media): 10 cuerpos (Compensación para mantener capacidad)
+    // Gap de 3m desde Zona C
+    const startB = 4.45 + 1.45 + 3.0 + 1.45; // ~10.35
+    for (let i = 0; i < 10; i++) centersX.push(10.35 + i * 3.0);
+    
+    // Zona A (Alta): 4 cuerpos
+    // Gap de 3m desde Zona B
+    const startA = centersX[11] + 1.45 + 3.0 + 1.45; // ~43.25
+    for (let i = 0; i < 4; i++) centersX.push(startA + i * 3.0);
 
     LINE_Z_CENTERS.forEach((cz) => {
       const isPedestrianZone = cz > PEDESTRIAN_ZONE_Z_START - 2;
@@ -222,8 +229,8 @@ export default function RacksLayout() {
 
         // 2. Vigas y Pallets
         const isZoneA = bodyIdx >= 12;
-        const isZoneB = bodyIdx >= 6 && bodyIdx < 12;
-        const isZoneC = bodyIdx < 6;
+        const isZoneB = bodyIdx >= 2 && bodyIdx < 12;
+        const isZoneC = bodyIdx < 2;
 
         const targetBeamArray = isZoneA ? data.beamsA : isZoneB ? data.beamsB : data.beamsC;
         const targetPalletArray = isZoneA ? data.palletsA : isZoneB ? data.palletsB : data.palletsC;
@@ -237,10 +244,8 @@ export default function RacksLayout() {
 
           targetBeamArray.push([cx, by, front1], [cx, by, front2], [cx, by, rear1], [cx, by, rear2]);
 
-          // NO PONER PALLETS EN EL NIVEL 6 (Nivel 11.0m es estructural)
           if (levelY >= 11.0) return;
 
-          // Posiciones de Pallets (4 por nivel)
           const palletY = by + (BEAM_H / 2) + (PALLET_H / 2);
           const pxL = cx - 0.7;
           const pxR = cx + 0.7;
@@ -249,7 +254,6 @@ export default function RacksLayout() {
 
           targetPalletArray.push([pxL, palletY, pzF], [pxR, palletY, pzF], [pxL, palletY, pzR], [pxR, palletY, pzR]);
 
-          // Accesorios Zona A
           if (isZoneA) {
             if (levelY === 0.15) data.spillTrays.push([cx, BODEGA_ELEVATION + 0.1, cz]);
             data.sprinklers.push([cx, by + 1.8, cz]);
