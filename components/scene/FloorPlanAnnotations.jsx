@@ -48,9 +48,7 @@ function ScaleBar({ position }) {
           <meshBasicMaterial color={i % 2 === 0 ? "#333" : "#fff"} />
         </mesh>
       ))}
-      <Html position={[10, 0.8, 0]} center>
-        <div style={{ ...GLASS_STYLE, fontSize: '10px', padding: '2px 8px' }}>ESCALA GRÁFICA (METROS)</div>
-      </Html>
+      {/* Scale text removed as per request */}
     </group>
   );
 }
@@ -63,68 +61,7 @@ export default function FloorPlanAnnotations() {
 
   return (
     <group position={[0, BODEGA_ELEVATION + 0.5, 0]} renderOrder={100}>
-      {/* Labels for Zones */}
-      <Html position={[10, 0, 1.5]} center>
-        <div style={GLASS_STYLE}>DS 43 INFLAMABLES</div>
-      </Html>
-
-
-      {/* Racks Zone Labels */}
-      <ZoneLabel position={[45, 0, 25]} name="ZONA A" color="#1E88E5" />
-      <ZoneLabel position={[30.75, 0, 25]} name="ZONA B" color="#FBC02D" />
-      <ZoneLabel position={[15.25, 0, 25]} name="ZONA C" color="#ef4444" />
-
-      {/* Yard and Logistics */}
-      <Html position={[80, 0, 25]} center>
-        <div style={{ ...GLASS_STYLE, fontSize: '16px', padding: '10px 20px' }}>PATIO DE MANIOBRAS</div>
-      </Html>
-
-      <Html position={[90, 0, 9]} center>
-        <div style={GLASS_STYLE}>SALA RESPEL</div>
-      </Html>
-      <Html position={[96, 0, 48]} center>
-        <div style={GLASS_STYLE}>ROMANA</div>
-      </Html>
-
-      {/* Technical Elements */}
-      <Compass position={[95, 0, 55]} />
-      <ScaleBar position={[70, 0, 59]} />
-
-      {/* Physical Legend replaced with Modern Glass Legend */}
-      <Html position={[-15, 0, 30]} center>
-        <div style={{ 
-          ...GLASS_STYLE, 
-          display: 'flex',
-          flexDirection: 'column', 
-          alignItems: 'flex-start', 
-          padding: '20px', 
-          gap: '12px',
-          width: '220px'
-        }}>
-          <div style={{ fontWeight: 800, marginBottom: '4px', color: '#1e293b' }}>LEYENDA DE PLANO</div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '16px', height: '8px', background: '#ef4444', borderRadius: '2px' }} />
-            <span style={{ fontSize: '11px' }}>EXTINTORES / RED HÚMEDA</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '16px', height: '8px', background: '#22c55e', borderRadius: '2px' }} />
-            <span style={{ fontSize: '11px' }}>DUCHAS / LAVAOJOS</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '16px', height: '8px', background: '#3b82f6', borderRadius: '2px' }} />
-            <span style={{ fontSize: '11px' }}>DRENAJE API / CANALETA</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '16px', height: '8px', background: '#facc15', borderRadius: '2px' }} />
-            <span style={{ fontSize: '11px' }}>KITS ANTIDERRAME</span>
-          </div>
-          
-          <div style={{ fontSize: '9px', color: '#64748b', marginTop: '8px', fontStyle: 'italic' }}>
-            PLANO TÉCNICO V1.2
-          </div>
-        </div>
-      </Html>
+      {/* Annotations cleared as per request */}
     </group>
   );
 }

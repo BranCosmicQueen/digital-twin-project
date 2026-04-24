@@ -101,30 +101,29 @@ function ReferenceGrid() {
 
 function RulerLabels({ is2D }) {
   if (!is2D) return null;
-  const labels = [
-    { text: '0m', position: [0, ZONE_Y + 0.02, -1.5] },
-    { text: '10m', position: [10, ZONE_Y + 0.02, -1.5] },
-    { text: '20m', position: [20, ZONE_Y + 0.02, -1.5] },
-    { text: '30m', position: [30, ZONE_Y + 0.02, -1.5] },
-    { text: '40m', position: [40, ZONE_Y + 0.02, -1.5] },
-    { text: '50m', position: [50, ZONE_Y + 0.02, -1.5] },
-    { text: '60m', position: [60, ZONE_Y + 0.02, -1.5] },
-    { text: '0m', position: [-1.8, ZONE_Y + 0.02, 0] },
-    { text: '10m', position: [-1.8, ZONE_Y + 0.02, 10] },
-    { text: '20m', position: [-1.8, ZONE_Y + 0.02, 20] },
-    { text: '30m', position: [-1.8, ZONE_Y + 0.02, 30] },
-    { text: '40m', position: [-1.8, ZONE_Y + 0.02, 40] },
-    { text: '50m', position: [-1.8, ZONE_Y + 0.02, 50] },
-  ];
+  const horizontal = [];
+  for (let x = 0; x <= 100; x += 10) {
+    horizontal.push({ text: `${x}m`, position: [x, ZONE_Y + 0.05, -2] });
+  }
+  const vertical = [];
+  for (let z = 10; z <= 50; z += 10) {
+    vertical.push({ text: `${z}m`, position: [-2, ZONE_Y + 0.05, z] });
+  }
 
   return (
     <group>
-      {labels.map((lbl, i) => (
-        <Html key={`ruler-${i}`} position={lbl.position} center>
-          <div style={{ ...GLASS_STYLE, fontSize: '9px', padding: '2px 4px', background: 'transparent', border: 'none', boxShadow: 'none', color: '#64748b' }}>
-            {lbl.text}
-          </div>
-        </Html>
+      {[...horizontal, ...vertical].map((lbl, i) => (
+        <Text
+          key={`ruler-${i}`}
+          position={lbl.position}
+          rotation={[-Math.PI / 2, 0, 0]}
+          fontSize={1.2}
+          color="#64748b"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {lbl.text}
+        </Text>
       ))}
     </group>
   );
@@ -149,13 +148,6 @@ function FloorZone({ zone, opacity = 0.25, is2D }) {
         ]}
         color={zone.color} lineWidth={2} transparent opacity={0.7}
       />
-      {is2D && (
-        <Html position={[cx, ZONE_Y + 0.02, cz]} center>
-          <div style={{ ...GLASS_STYLE, borderLeft: `3px solid ${zone.color}` }}>
-            {zone.label}
-          </div>
-        </Html>
-      )}
     </group>
   );
 }
@@ -173,11 +165,6 @@ function DS43FloorLines({ is2D }) {
         ]}
         color={zone.borderColor} lineWidth={3} transparent opacity={0.9}
       />
-      {is2D && (
-        <Html position={[cx, ZONE_Y + 0.03, zone.zMax + 1]} center>
-          <div style={{ ...GLASS_STYLE, fontSize: '9px', color: zone.borderColor }}>PRETIL 0.2m</div>
-        </Html>
-      )}
     </group>
   );
 }
@@ -185,29 +172,27 @@ function DS43FloorLines({ is2D }) {
 function GeneralTexts({ is2D }) {
   if (!is2D) return null;
   const labels = [
-    { text: 'STA. ADELA', position: [GATE_X + CALLE_ADELA_WIDTH / 2, 0.2, 25], fontSize: 2, color: '#ffffff', opacity: 0.5, rotationZ: Math.PI / 2 },
-    { text: 'PORTÓN ACCESO', position: [102, 0.05, GATE_MAIN_Z], fontSize: 1, color: COLORS.gateEntry, opacity: 1 },
-    { text: '← 60m (BODEGA) →', position: [30, ZONE_Y + 0.02, -3.5], fontSize: 1.2, color: '#374151', opacity: 0.8 },
-    { text: '← 100m (BASE TOTAL) →', position: [50, ZONE_Y + 0.02, -7], fontSize: 1.5, color: '#1f2937', opacity: 0.9 },
-    { text: 'INBOUND', position: [65, 0.02, 30], fontSize: 1.2, color: COLORS.accentInbound, opacity: 0.8 },
-    { text: 'OUTBOUND', position: [65, 0.02, 20], fontSize: 1.2, color: COLORS.accentOutbound, opacity: 0.8 },
+    { text: 'STA. ADELA', position: [GATE_X + CALLE_ADELA_WIDTH / 2, 0.1, 25], fontSize: 2.5, color: '#94a3b8', rotation: [-Math.PI / 2, 0, Math.PI / 2] },
+    { text: '← 60m (BODEGA) →', position: [30, ZONE_Y + 0.05, -5], fontSize: 2, color: '#334155', rotation: [-Math.PI / 2, 0, 0] },
+    { text: '← 40m (PATIO DE MANIOBRAS) →', position: [80, ZONE_Y + 0.05, -5], fontSize: 2, color: '#334155', rotation: [-Math.PI / 2, 0, 0] },
+    { text: '← 100m (BASE TOTAL) →', position: [60, ZONE_Y + 0.05, 54], fontSize: 2.5, color: '#1e293b', rotation: [-Math.PI / 2, 0, 0] },
   ];
 
   return (
     <group>
       {labels.map((lbl, i) => (
-        <Html key={i} position={lbl.position} center>
-          <div style={{ 
-            ...GLASS_STYLE, 
-            transform: lbl.rotationZ ? `rotate(${lbl.rotationZ}rad)` : 'none',
-            fontSize: lbl.text.includes('100m') ? '14px' : '11px',
-            background: lbl.text.includes('STA. ADELA') ? 'rgba(30, 41, 59, 0.6)' : GLASS_STYLE.background,
-            color: lbl.text.includes('STA. ADELA') ? '#fff' : GLASS_STYLE.color,
-            borderColor: lbl.color || GLASS_STYLE.borderColor
-          }}>
-            {lbl.text}
-          </div>
-        </Html>
+        <Text
+          key={i}
+          position={lbl.position}
+          rotation={lbl.rotation}
+          fontSize={lbl.fontSize}
+          color={lbl.color}
+          anchorX="center"
+          anchorY="middle"
+          depthOffset={-1}
+        >
+          {lbl.text}
+        </Text>
       ))}
     </group>
   );
@@ -230,11 +215,6 @@ function AisleCorridors({ is2D }) {
           </mesh>
           <Line points={[[0, ZONE_Y + 0.006, aisle.cz - aisle.depth / 2], [50, ZONE_Y + 0.006, aisle.cz - aisle.depth / 2]]} color={COLORS.aisleLines} lineWidth={1.5} transparent opacity={0.5} dashed dashSize={0.5} gapSize={0.3} />
           <Line points={[[0, ZONE_Y + 0.006, aisle.cz + aisle.depth / 2], [50, ZONE_Y + 0.006, aisle.cz + aisle.depth / 2]]} color={COLORS.aisleLines} lineWidth={1.5} transparent opacity={0.5} dashed dashSize={0.5} gapSize={0.3} />
-          {is2D && (
-            <Html position={[25, ZONE_Y + 0.02, aisle.cz]} center>
-              <div style={{ ...GLASS_STYLE, fontSize: '10px', color: '#92400e', background: 'rgba(254, 243, 199, 0.4)' }}>{aisle.label}</div>
-            </Html>
-          )}
         </group>
       ))}
     </group>
@@ -265,11 +245,6 @@ function PedestrianZone({ is2D }) {
       </mesh>
       <Line points={[[0, ZONE_Y + 0.006, zStart], [width, ZONE_Y + 0.006, zStart]]} color="#eab308" lineWidth={4} dashed={false} />
       {stripes}
-      {is2D && (
-        <Html position={[cx, ZONE_Y + 0.02, cz]} center>
-          <div style={{ ...GLASS_STYLE, background: 'rgba(254, 240, 138, 0.4)', color: '#854d0e' }}>ZONA DE PICKING PEATONAL (SIN GRÚAS)</div>
-        </Html>
-      )}
     </group>
   );
 }
@@ -286,11 +261,6 @@ function SacredCircle({ is2D }) {
         <circleGeometry args={[TURNING_RADIUS, 64]} />
         <meshBasicMaterial color="#ef4444" transparent opacity={0.05} />
       </mesh>
-      {is2D && (
-        <Html position={[PATIO_CENTER_X, 0.05, PATIO_CENTER_Z]} center>
-          <div style={{ ...GLASS_STYLE, color: '#b91c1c', background: 'rgba(254, 226, 226, 0.4)' }}>[ MUTEX ] GIRO CAMIONES</div>
-        </Html>
-      )}
     </group>
   );
 }
@@ -318,11 +288,6 @@ function PullZones({ is2D }) {
               ]}
               color={z.color} lineWidth={2} transparent opacity={0.8}
             />
-            {is2D && (
-              <Html position={[cx, 0.04, cz]} center>
-                <div style={{ ...GLASS_STYLE, color: z.color }}>{z.label} (ENCOLAMIENTO)</div>
-              </Html>
-            )}
           </group>
         );
       })}
@@ -352,12 +317,6 @@ function RomanaMarkings({ is2D }) {
         transparent
         opacity={0.4}
       />
-      {/* Dimension Label */}
-      {is2D && (
-        <Html position={[cx, 0.05, cz + halfD + 2]} center>
-          <div style={{ ...GLASS_STYLE, color: '#b45309', background: 'rgba(255, 251, 235, 0.4)' }}>ROMANA PESANE [ 18.0m ]</div>
-        </Html>
-      )}
     </group>
   );
 }

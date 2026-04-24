@@ -46,9 +46,11 @@ export default function Home() {
               border: '1px solid rgba(255, 255, 255, 0.6)',
             }}
           >
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', letterSpacing: '0.04em' }}>
-              GEMELO DIGITAL ESMAX — PLANTA MAIPÚ
-            </span>
+            <img 
+              src="/logoesmax.png" 
+              alt="ESMAX Logo" 
+              style={{ height: '32px', display: 'block' }} 
+            />
           </div>
 
           {/* Technical Legend Overlay */}

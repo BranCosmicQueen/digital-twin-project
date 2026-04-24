@@ -106,14 +106,6 @@ export default function BatteryLayout() {
         <SafetyBollard key={`bollard-${i}`} position={pos} />
       ))}
 
-      {/* Warning Sign */}
-      {is2D && (
-        <Html position={[5, BODEGA_ELEVATION + 0.05, 46]} center>
-          <div style={{ ...GLASS_STYLE, color: '#92400e', background: 'rgba(254, 243, 199, 0.6)' }}>
-            ⚠ CARGA BATERÍAS ⚠
-          </div>
-        </Html>
-      )}
     </group>
   );
 }

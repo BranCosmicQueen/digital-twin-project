@@ -289,14 +289,6 @@ function AdministrationOffice({ is2D }) {
         ))}
       </group>
       
-      {/* Label */}
-      {is2D && (
-        <Html position={[0, height - 0.5, depth / 2 + 0.1]} center>
-          <div style={{ ...GLASS_STYLE, background: 'rgba(30, 41, 59, 0.8)', color: '#fff', border: 'none' }}>
-            ADMINISTRACIÓN
-          </div>
-        </Html>
-      )}
     </group>
   );
 }
