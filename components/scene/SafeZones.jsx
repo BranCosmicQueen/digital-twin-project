@@ -8,6 +8,8 @@ import {
   COLORS,
 } from '@/lib/constants';
 
+import useSimStore from '@/store/useSimStore';
+
 function Building({ pos, size, color, label }) {
   return (
     <group position={pos}>
@@ -25,10 +27,19 @@ function Building({ pos, size, color, label }) {
 }
 
 export default function SafeZones() {
+  const setHoveredItem = useSimStore(s => s.setHoveredItem);
+  const is2D = useSimStore(s => s.viewMode === '2d');
+
   return (
-    <group>
+    <group onPointerOut={() => setHoveredItem(null)}>
       {/* 1. Sala RESPEL (Residuos Peligrosos - DS 148) */}
-      <group position={[RESPEL_CENTER_X, 0, RESPEL_CENTER_Z]}>
+      <group 
+        position={[RESPEL_CENTER_X, 0, RESPEL_CENTER_Z]}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          if (is2D) setHoveredItem('SALA DE RESIDUOS PELIGROSOS (DS 148)');
+        }}
+      >
         <Building 
           pos={[0, 0, 0]} 
           size={[RESPEL_SIZE_X, 3.5, RESPEL_SIZE_Z]} 
@@ -42,18 +53,32 @@ export default function SafeZones() {
       </group>
 
       {/* 2. Sistema de Agua Contra Incendio (NFPA) */}
-      <group position={[RESPEL_CENTER_X - 15, 0, RESPEL_CENTER_Z]}>
+      <group position={[5, 0, 5]}>
         {/* Estanque de Agua (Cilindro Azul) */}
-        <mesh position={[0, 4, 0]} castShadow>
-          <cylinderGeometry args={[4, 4, 8, 24]} />
+        <mesh 
+          position={[0, 4, 0]} 
+          castShadow
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            if (is2D) setHoveredItem('ESTANQUE DE RESERVA DE AGUA CONTRA INCENDIO (NFPA)');
+          }}
+        >
+          <cylinderGeometry args={[3, 3, 8, 24]} />
           <meshStandardMaterial color="#1e40af" metalness={0.4} roughness={0.3} />
         </mesh>
         {/* Sala de Bombas */}
-        <Building 
-          pos={[6, 0, 0]} 
-          size={[5, 3.5, 6]} 
-          color="#cbd5e1" 
-        />
+        <group
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            if (is2D) setHoveredItem('SALA DE BOMBAS DE INCENDIO (RED HÚMEDA)');
+          }}
+        >
+          <Building 
+            pos={[5, 0, 0]} 
+            size={[4, 3.5, 5]} 
+            color="#cbd5e1" 
+          />
+        </group>
       </group>
     </group>
   );

@@ -236,21 +236,22 @@ function PedestrianZone({ is2D }) {
       <Line key={x} points={[[x, ZONE_Y + 0.005, zStart], [x + 2, ZONE_Y + 0.005, zEnd]]} color="#eab308" lineWidth={2} transparent opacity={0.5} />
     );
   }
-
   const setHoveredItem = useSimStore(s => s.setHoveredItem);
 
   return (
     <group onPointerOut={() => setHoveredItem(null)}>
+      {/* Invisible Hover Trigger */}
       <mesh 
-        position={[cx, ZONE_Y + 0.002, cz]} 
+        position={[cx, ZONE_Y + 0.3, cz]} 
         rotation={[-Math.PI / 2, 0, 0]}
-        onPointerOver={() => is2D && setHoveredItem('ZONA PEATONAL / SALIDA DE EMERGENCIA')}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          if (is2D) setHoveredItem('ZONA PEATONAL / SALIDA DE EMERGENCIA');
+        }}
       >
         <planeGeometry args={[width, depth]} />
-        <meshBasicMaterial color="#eab308" transparent opacity={0.1} />
+        <meshBasicMaterial transparent opacity={0} />
       </mesh>
-      <Line points={[[0, ZONE_Y + 0.006, zStart], [width, ZONE_Y + 0.006, zStart]]} color="#eab308" lineWidth={4} dashed={false} />
-      {stripes}
     </group>
   );
 }

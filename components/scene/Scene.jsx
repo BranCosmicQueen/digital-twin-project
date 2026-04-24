@@ -19,6 +19,7 @@ import FloorMarkings from './FloorMarkings';
 import BoundarySensors from './BoundarySensors';
 import Worker from './Worker';
 import SimulationManager from './SimulationManager';
+import OperationalSim from './OperationalSim';
 import { useSimulationStore } from '@/lib/store';
 import { COLORS, BODEGA_ELEVATION } from '@/lib/constants';
 
@@ -108,7 +109,7 @@ export default function Scene() {
         <BoundarySensors />
         <SimulationTruck />
         <SimulationWorker />
-        
+        <OperationalSim />
       </Suspense>
     </Canvas>
   );
